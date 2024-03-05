@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"shines/controllers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,10 +13,11 @@ func main() {
 
 	router.LoadHTMLGlob("views/html/*.html")
 
-	// router.GET("/", mainpage)
+	router.GET("/", controllers.HomePage)
 
 	err := router.Run(":8080")
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
