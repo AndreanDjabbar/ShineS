@@ -1,0 +1,163 @@
+html, *, body {
+    padding: 0;
+    margin: 0;
+}
+
+ul li {
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    align-items: center;
+    background-color: #ffffff; /* Tambahkan warna latar belakang yang sesuai */
+    height: 114px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Sesuaikan lebar dengan ukuran layar */
+    z-index: 1000; /* Atur z-index agar navigasi berada di atas konten */
+}
+
+nav .nav-left {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    width: 10%;
+}
+
+nav .nav-right {
+    width: 80%;
+    display: flex;
+    padding-right: 20px;
+    justify-content: space-between;
+}
+
+nav .nav-right ul a{
+    font-size: 24px;
+    color: #000000;
+}
+
+nav .nav-right .nav-right1 {
+    display: flex;
+    align-items: center;
+    width: 9%;
+    gap: 40px;
+    justify-content: space-between;
+}
+
+nav .nav-right .nav-right2 {
+    display: flex;
+    align-items: center;
+    width: 25%;
+    justify-content: space-between;
+}
+
+nav #nav-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: #000000;
+    line-height: 48.41px;
+}
+
+.content {
+    background: linear-gradient(245.61deg, #F7BB21 3.38%, #A3D979 99.62%);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    height: 1024px;
+}
+
+.content .register-content {
+    width: 473px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 617px;
+    margin-top: 254px;
+    box-shadow: 0px 0px 40px 5px #0000004A;
+    border-radius: 21px;
+    opacity: 0px;
+    background: #FFFFFF;
+
+}
+
+.content .register-content form {
+    width: 358px;
+    height: 80%;
+    top: 373px;
+    left: 541px;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    border-radius: 10px 0px 0px 0px;
+    border: 1px 0px 0px 0px;
+    opacity: 0px;
+    display: flex;
+    flex-direction: column;
+}
+
+.content .register-content form .form-username, 
+.content .register-content form .form-password,
+.content .register-content form .form-email,
+.content .register-content form .form-phone {
+    display: flex;
+    flex-direction: column;
+} 
+
+.content .register-content form .form-username label, 
+.content .register-content form .form-password label,
+.content .register-content form .form-email label,
+.content .register-content form .form-phone label {
+    font-family: Inter;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 24.2px;
+    text-align: left;
+}
+
+.content .register-content form .form-username input, 
+.content .register-content form .form-password input,
+.content .register-content form .form-email input,
+.content .register-content form .form-phone input {
+    width: 358px;
+    height: 50px;
+    font-size: 15px;
+    padding-left: 10px;
+    gap: 0px;
+    border-radius: 10px;
+    color: #000;
+    border: 1px solid #A8A8A8
+}
+
+.content .register-content form button {
+    width: 358px;
+    height: 68px;
+    top: 656px;
+    left: 541px;
+    font-family: Inter;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 29.05px;
+    text-align: center;
+    background: #F6EE22;
+    gap: 0px;
+    border-radius: 10px;
+    border: 1px solid #A8A8A8
+}
+
+.content .register-content #register-title {
+    font-family: Inter;
+    font-size: 38px;
+    padding-top: 50px;
+    font-weight: 400;
+    line-height: 45.99px;
+    color: #000;
+    text-align: left;
+}

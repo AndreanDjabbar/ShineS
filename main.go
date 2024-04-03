@@ -2,20 +2,14 @@ package main
 
 import (
 	"log"
-	"shines/controllers"
-
-	"github.com/gin-gonic/gin"
+	"shines/routers"
 )
 
 func main() {
 
-	router := gin.Default()
+	router := routers.AddRouter()
 
-	router.LoadHTMLGlob("views/html/*.html")
-
-	router.GET("/", controllers.HomePage)
-
-	err := router.Run(":8080")
+	err := router.Run("localhost:8080")
 	if err != nil {
 		log.Fatal(err)
 	}
