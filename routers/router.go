@@ -24,6 +24,6 @@ func MainRouter(c *gin.RouterGroup) {
 		main.POST("register/", controllers.RegisterHandler)	
 		main.GET("logout/", controllers.LogoutHandler)
 	}
-
+	
 	main.GET("home/", controllers.ViewHomeHandler)
 }
