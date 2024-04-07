@@ -3,6 +3,7 @@ package routers
 import (
 	"net/http"
 	"shines/controllers"
+	"shines/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,26 +14,16 @@ func RootHandler(c *gin.Context) {
 	)
 }
 
-func AddRouter() *gin.Engine {
-	router := gin.Default()
-	router.LoadHTMLGlob("views/html/*.html")
-	router.Static("/css", "./views/css")
-
-	router.GET("", RootHandler)
-
-	authRouter := router.Group("/authentication/")
+func MainRouter(c *gin.RouterGroup) {
+	main := c.Group("main/", middlewares.SetSession())
+	main.Use(middlewares.AuthSession())
 	{
-		authRouter.GET("login/", controllers.ViewLoginHandler)
-		authRouter.POST("login/", controllers.LoginHandler)
-		authRouter.GET("register/", controllers.ViewRegisterHandler)	
-		authRouter.POST("register/", controllers.RegisterHandler)	
-		authRouter.GET("logoutss", controllers.LogoutHandler)
+		main.GET("login/", controllers.ViewLoginHandler)
+		main.POST("login/", controllers.LoginHandler)
+		main.GET("register/", controllers.ViewRegisterHandler)	
+		main.POST("register/", controllers.RegisterHandler)	
+		main.GET("logout/", controllers.LogoutHandler)
 	}
 
-	mainRouter := router.Group("/main/")
-	{
-		mainRouter.GET("home/", controllers.ViewHomeHandler)
-	}
-
-	return router
+	main.GET("home/", controllers.ViewHomeHandler)
 }
