@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -15,10 +14,6 @@ func AuthSession() gin.HandlerFunc {
 		session := sessions.Default(c)
 		userSession := session.Get(userKey)
 		if userSession == nil {
-			c.JSON(
-				http.StatusUnauthorized,
-				gin.H{"Error":"Authentication Failed"},
-			)
 			return
 		} else {
 			c.Next()
@@ -49,7 +44,6 @@ func GetSession(c *gin.Context) string {
 
 func ClearSession(c *gin.Context) {
 	session := sessions.Default(c)
-	session.Delete(userKey)
 	session.Clear()
 	session.Save()
 }

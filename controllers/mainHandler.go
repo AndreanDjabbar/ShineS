@@ -2,13 +2,17 @@ package controllers
 
 import (
 	"net/http"
-	_"shines/middlewares"
+	"shines/middlewares"
+	_ "shines/middlewares"
+
 	"github.com/gin-gonic/gin"
 )
 
 func ViewHomeHandler(c *gin.Context) {
+	user := middlewares.GetSession(c)
 	context := gin.H {
 		"title":"Home",
+		"user":user,
 	}
 	c.HTML(
 		http.StatusOK,

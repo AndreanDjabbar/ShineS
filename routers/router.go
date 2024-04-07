@@ -25,25 +25,15 @@ func RootHandler(c *gin.Context) {
 	}
 }
 
-func AddRouter() *gin.Engine {
-	router := gin.Default()
-	router.Use(middlewares.SetSession())
-	router.LoadHTMLGlob("views/html/*.html")
-	router.Static("/css", "./views/css")
+func MainRouter(c *gin.RouterGroup) {
+	main := c.Group("main/", middlewares.SetSession())
+	main.Use(middlewares.AuthSession())
 
-	router.GET("", RootHandler)
-
-	authRouter := router.Group("authentication/")
 	{
-		authRouter.GET("login/", controllers.ViewLoginHandler)
-		authRouter.GET("register/", controllers.ViewRegisterHandler)	
-		authRouter.Use(middlewares.AuthSession())
+		main.GET("register/", controllers.ViewRegisterHandler)
+		main.POST("register/", controllers.RegisterHandler)
+		main.GET("login/", controllers.ViewLoginHandler)
+		main.POST("login/", controllers.LoginHandler)
 	}
-
-	// mainRouter := router.Group("main/")
-	// {
-	
-	// }
-
-	return router
+	main.GET("home/", controllers.ViewHomeHandler)
 }
