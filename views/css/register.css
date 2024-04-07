@@ -79,7 +79,7 @@ nav #nav-title {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    height: 617px;
+    height: 630px;
     margin-top: 254px;
     box-shadow: 0px 0px 40px 5px #0000004A;
     border-radius: 21px;
@@ -90,7 +90,7 @@ nav #nav-title {
 
 .content .register-content form {
     width: 358px;
-    height: 80%;
+    height: 85%;
     top: 373px;
     left: 541px;
     align-items: center;

@@ -16,27 +16,27 @@
         </div>
         <div class="nav-right">
             <ul class="nav-right1">
-                <li><a href="">Home</a></li>
+                <li><a href="/main/home/">Home</a></li>
                 <li><a href="">Category</a></li>
             </ul>
             <ul class="nav-right2">
                 <li><a href="">Cart</a></li>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="register.html">Register</a></li>
+                <li><a href="../login">Login</a></li>
+                <li><a href="../register">Register</a></li>
             </ul>
         </div>
     </nav>
     <div class="content">
         <div class="login-content">
             <a href="" id="login-title">{{.title}}</a>
-            <form action="" method="post">
+            <form action="/authentication/login/" method="post">
                 <div class="form-username">
                     <label for="username">Username</label>
-                    <input type="text">
+                    <input type="text" id="username" name="username" required>
                 </div>
                 <div class="form-password">
                     <label for="password">Password</label>
-                    <input type="password">
+                    <input type="password" id="password" name="password" required>
                 </div>
                 <button type="submit">Login</button>
             </form>

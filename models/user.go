@@ -9,10 +9,10 @@ const (
 )
 
 type User struct {
-	UserId uint `gorm:"primaryKey"`
-	Username string `gorm:"unique;not null"`
-	Email string `gorm:"unique;not null"`
-	Phone string `gorm:"unique"`
-	Password string `gorm:"unique;not null"`
-	Role userRole `gorm:"unique"`
+    UserId   uint     `gorm:"primaryKey"`
+    Username string   `gorm:"unique;size:100;not null"`
+    Email    string   `gorm:"not null;size:100"`
+    Phone    string   `gorm:"unique"`
+    Password string   `gorm:"unique;not null"`
+    Role     userRole `gorm:"type:ENUM('Admin', 'Seller', 'Customer');not null"`
 }
