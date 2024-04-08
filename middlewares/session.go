@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -14,16 +13,14 @@ const userKey = "Secret"
 func AuthSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
-		fmt.Println("ini auth ")
 		userSession := session.Get(userKey)
 		if userSession == nil {
 			c.Redirect(
-				http.StatusMovedPermanently,
+				http.StatusFound,
 				"/shines/main/login",
 			)
-			return
+			c.Abort()
 		} else {
-			fmt.Println("Ini Next")
 			c.Next()
 		}
 	}
@@ -31,10 +28,6 @@ func AuthSession() gin.HandlerFunc {
 
 func SetSession() gin.HandlerFunc {
 	store := cookie.NewStore([]byte(userKey))
-	store.Options(sessions.Options{
-		MaxAge:   0,
-		HttpOnly: true,
-	})
 	return sessions.Sessions("mySession", store)
 }
 

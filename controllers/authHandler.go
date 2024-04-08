@@ -2,15 +2,21 @@ package controllers
 
 import (
 	"fmt"
+	_ "fmt"
 	"net/http"
+	"shines/middlewares"
 	"shines/models"
 	"strconv"
 	"strings"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func ViewRegisterHandler(c *gin.Context) {
+		fmt.Println(middlewares.CheckSession(c))
+		fmt.Println(middlewares.GetSession(c))
+	fmt.Println(middlewares.CheckSession(c))
 	context := gin.H {
 		"title":"Sign Up",
 	}
@@ -89,7 +95,7 @@ func RegisterHandler(c *gin.Context) {
 			context := gin.H{
 				"title":   "Error Create",
 				"message": "Failed to Create Data",
-				"source":  "/authentication/register/",
+				"source":  "/shines/main/register",
 			}
 			c.HTML(
 				http.StatusOK,
@@ -97,10 +103,9 @@ func RegisterHandler(c *gin.Context) {
 				context,
 			)
 		}
-		fmt.Println("login Berhasil")
 		c.Redirect(
 			http.StatusTemporaryRedirect,
-			"/authentication/login",
+			"/shines/main/login",
 		)
 }
 
@@ -123,6 +128,9 @@ func RegisterHandler(c *gin.Context) {
 }
 
 func ViewLoginHandler(c *gin.Context) {
+	
+	fmt.Println(middlewares.CheckSession(c))
+	fmt.Println(middlewares.GetSession(c))
 	context := gin.H {
 		"title":"Login",
 	}
@@ -163,10 +171,12 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	if usernameErr == "" && passwordErr == "" {
+		middlewares.SaveSession(c, username)
 		c.Redirect(
-			http.StatusMovedPermanently,
-			"/main/home/",
+			http.StatusFound,
+			"/shines/main/homes",
 		)
+		return
 	}
 
 	context := gin.H {
@@ -183,5 +193,9 @@ func LoginHandler(c *gin.Context) {
 }
 
 func LogoutHandler(c *gin.Context) {
-	c.Status(http.StatusAccepted)
+	middlewares.ClearSession(c)
+	c.Redirect(
+		http.StatusFound,
+		"/shines/main/login",
+	)
 }

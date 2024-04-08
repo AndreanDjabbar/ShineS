@@ -18,7 +18,7 @@ func main() {
 	shines := router.Group("shines/")
 	routers.MainRouter(shines)
 	
-	err := router.Run("localhost:8080")
+	err := router.Run("localhost:8000")
 	if err != nil {
 		log.Fatal(err)
 	}
