@@ -95,7 +95,7 @@ func RegisterHandler(c *gin.Context) {
 			context := gin.H{
 				"title":   "Error Create",
 				"message": "Failed to Create Data",
-				"source":  "/shines/main/register",
+				"source":  "/shines/main/register-page",
 			}
 			c.HTML(
 				http.StatusOK,
@@ -104,8 +104,8 @@ func RegisterHandler(c *gin.Context) {
 			)
 		}
 		c.Redirect(
-			http.StatusTemporaryRedirect,
-			"/shines/main/login",
+			http.StatusFound,
+			"/shines/main/login-page",
 		)
 }
 
@@ -174,7 +174,7 @@ func LoginHandler(c *gin.Context) {
 		middlewares.SaveSession(c, username)
 		c.Redirect(
 			http.StatusFound,
-			"/shines/main/homes",
+			"/shines/main/home-page",
 		)
 		return
 	}
@@ -196,6 +196,6 @@ func LogoutHandler(c *gin.Context) {
 	middlewares.ClearSession(c)
 	c.Redirect(
 		http.StatusFound,
-		"/shines/main/login",
+		"/shines/main/login-page",
 	)
 }

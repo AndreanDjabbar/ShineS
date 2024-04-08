@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"shines/controllers"
 	"shines/models"
 	"shines/routers"
 
@@ -9,11 +10,12 @@ import (
 )
 
 func main() {
-
 	router := gin.Default()
 	router.LoadHTMLGlob("views/html/*.html")
 	router.Static("/css", "./views/css")
 	models.ConnectToDatabase()
+
+	router.GET("/", controllers.RootHandler)
 
 	shines := router.Group("shines/")
 	routers.MainRouter(shines)

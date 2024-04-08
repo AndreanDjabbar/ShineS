@@ -17,7 +17,7 @@ func AuthSession() gin.HandlerFunc {
 		if userSession == nil {
 			c.Redirect(
 				http.StatusFound,
-				"/shines/main/login",
+				"/shines/main/login-page",
 			)
 			c.Abort()
 		} else {
