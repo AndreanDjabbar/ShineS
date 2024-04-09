@@ -1,49 +1,22 @@
 package routers
 
 import (
-	"net/http"
 	"shines/controllers"
 	"shines/middlewares"
-
 	"github.com/gin-gonic/gin"
 )
 
-func RootHandler(c *gin.Context) {
-	isLogged := middlewares.CheckSession(c)
-	if !isLogged {
-		c.Redirect(
-			http.StatusMovedPermanently,
-			"/authentication/register",
-		)
-		return
-	} else {
-		c.Redirect(
-			http.StatusMovedPermanently,
-			"/main/home/",
-		)
-		return
-	}
-}
 
-func AddRouter() *gin.Engine {
-	router := gin.Default()
-	router.Use(middlewares.SetSession())
-	router.LoadHTMLGlob("views/html/*.html")
-	router.Static("/css", "./views/css")
-
-	router.GET("", RootHandler)
-
-	authRouter := router.Group("authentication/")
+func MainRouter(c *gin.RouterGroup) {
+	main := c.Group("main/", middlewares.SetSession())
 	{
-		authRouter.GET("login/", controllers.ViewLoginHandler)
-		authRouter.GET("register/", controllers.ViewRegisterHandler)	
-		authRouter.Use(middlewares.AuthSession())
+		main.GET("", controllers.RootHandler)
+		main.GET("login-page/", controllers.ViewLoginHandler)
+		main.POST("login-page/", controllers.LoginHandler)
+		main.GET("register-page/", controllers.ViewRegisterHandler)	
+		main.POST("register-page/", controllers.RegisterHandler)	
+		main.GET("logout-page/", controllers.LogoutHandler)
+		main.Use(middlewares.AuthSession())
+		main.GET("home-page/", controllers.ViewHomeHandler)
 	}
-
-	// mainRouter := router.Group("main/")
-	// {
-	
-	// }
-
-	return router
 }

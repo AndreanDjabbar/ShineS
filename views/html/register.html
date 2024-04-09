@@ -16,13 +16,13 @@
         </div>
         <div class="nav-right">
             <ul class="nav-right1">
-                <li><a href="">Home</a></li>
+                <li><a href="/shines/main/home-page">Home</a></li>
                 <li><a href="">Category</a></li>
             </ul>
             <ul class="nav-right2">
                 <li><a href="">Cart</a></li>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="register.html">Register</a></li>
+                <li><a href="../login-page">Login</a></li>
+                <li><a href="../register-page">Register</a></li>
             </ul>
         </div>
     </nav>
@@ -32,19 +32,37 @@
             <form action="" method="post">
                 <div class="form-username">
                     <label for="username">Username</label>
-                    <input type="text">
+                    {{ if .usernameErr }}
+                        <input type="text" name="name" value="{{.username}}" required>
+                        <p style="color: red; font-size: 14px; font-family: inter;">{{ .usernameErr }}</p>
+                    {{else}}
+                        <input type="text" name="name" required>
+                    {{ end }}
                 </div>
                 <div class="form-email">
                     <label for="email">Email</label>
-                    <input type="email">
+                    {{ if .emailErr }}
+                        <input type="email" name="email" required value="{{.email}}">
+                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .emailErr }}</p>
+                    {{ else }}
+                        <input type="email" name="email" required>
+                    {{end}}
                 </div>
                 <div class="form-phone">
                     <label for="phone">Phone</label>
-                    <input type="text">
+                    {{ if .phoneErr }}
+                        <input type="text" name="phone" value="{{.phone}}" required>
+                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .phoneErr }}</p>
+                    {{else}}
+                        <input type="text" name="phone" required>
+                    {{ end }}
                 </div>
                 <div class="form-password">
                     <label for="password">Password</label>
-                    <input type="password">
+                    <input type="password" name="password" required>
+                    {{ if .passwordErr }}
+                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .passwordErr }}</p>
+                    {{ end }}
                 </div>
                 <button type="submit">Sign Up</button>
             </form>
