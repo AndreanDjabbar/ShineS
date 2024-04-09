@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
@@ -12,7 +11,6 @@ import (
 )
 
 func ViewRegisterHandler(c *gin.Context) {
-	fmt.Println(middlewares.CheckSession(c))
 	context := gin.H {
 		"title":"Sign Up",
 	}
@@ -124,9 +122,14 @@ func RegisterHandler(c *gin.Context) {
 }
 
 func ViewLoginHandler(c *gin.Context) {
-	
-	fmt.Println(middlewares.CheckSession(c))
-	fmt.Println(middlewares.GetSession(c))
+	isLogged := middlewares.CheckSession(c)
+	if isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"/shines/main/home-page",
+		)
+		return
+	}
 	context := gin.H {
 		"title":"Login",
 	}
