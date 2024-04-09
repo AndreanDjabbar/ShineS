@@ -7,14 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const userKey = "User"
+const userKey = "Secret"
 
 func AuthSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 		userSession := session.Get(userKey)
 		if userSession == nil {
-			return
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/login-page",
+			)
+			c.Abort()
 		} else {
 			c.Next()
 		}

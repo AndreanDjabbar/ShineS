@@ -7,25 +7,12 @@ import (
 	"shines/models"
 	"strconv"
 	"strings"
-
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
-
-func ViewLoginHandler(c *gin.Context) {
-	middlewares.ClearSession(c)
-	context := gin.H {
-		"title":"Login",
-	}
-	c.HTML(
-		http.StatusOK,
-		"login.html",
-		context,
-	)
-}
-
 func ViewRegisterHandler(c *gin.Context) {
+	fmt.Println(middlewares.CheckSession(c))
 	context := gin.H {
 		"title":"Sign Up",
 	}
@@ -62,7 +49,7 @@ func RegisterHandler(c *gin.Context) {
 		usernameErr = "Minimum Username is 5 Characters!"
 	}
 
-	if strings.Contains(email, "@") == false {
+	if !strings.Contains(email, "@") {
 		emailErr = "Email must included @"
 	}	
 
@@ -74,7 +61,7 @@ func RegisterHandler(c *gin.Context) {
 		phoneErr = "Minimum phone is 8 Characters!"
 	}
 
-	if isNumber(phone) == false {
+	if !isNumber(phone) {
 		phoneErr = "Phone must be a number"
 	}
 
@@ -104,22 +91,19 @@ func RegisterHandler(c *gin.Context) {
 			context := gin.H{
 				"title":   "Error Create",
 				"message": "Failed to Create Data",
-				"source":  "/shines/main/register",
+				"source":  "/shines/main/register-page",
 			}
 			c.HTML(
 				http.StatusOK,
 				"error.html",
 				context,
 			)
-			return
 		}
-		fmt.Println("login Berhasil")
 		c.Redirect(
-			http.StatusMovedPermanently,
-			"/shines/main/login",
+			http.StatusFound,
+			"/shines/main/login-page",
 		)
-		return
-	}
+}
 
 	context := gin.H{
 		"title":"Sign Up",
@@ -139,6 +123,20 @@ func RegisterHandler(c *gin.Context) {
 	)
 }
 
+func ViewLoginHandler(c *gin.Context) {
+	
+	fmt.Println(middlewares.CheckSession(c))
+	fmt.Println(middlewares.GetSession(c))
+	context := gin.H {
+		"title":"Login",
+	}
+	c.HTML(
+		http.StatusOK,
+		"login.html",
+		context,
+	)
+}
+
 func LoginHandler(c *gin.Context) {
 	var user models.User
 	var username, password string
@@ -154,6 +152,7 @@ func LoginHandler(c *gin.Context) {
 	if len(password) < 5 {
 		passwordErr = "Minimum Password is 5 Characters!"
 	}
+
 	err := models.DB.Where("Username = ?", username).First(&user).Error
 	if err != nil {
 		usernameErr = "Invalid Username"
@@ -168,12 +167,12 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	if usernameErr == "" && passwordErr == "" {
-		fmt.Println(user)
 		middlewares.SaveSession(c, username)
 		c.Redirect(
-			http.StatusMovedPermanently,
-			"/shines/main/homes/",
+			http.StatusFound,
+			"/shines/main/home-page",
 		)
+		return
 	}
 
 	context := gin.H {
@@ -190,22 +189,9 @@ func LoginHandler(c *gin.Context) {
 }
 
 func LogoutHandler(c *gin.Context) {
-	isLogged := middlewares.CheckSession(c)
-	if !isLogged {
-		c.Redirect(
-			http.StatusMovedPermanently,
-			"shines/main/login",
-		)
-	} else {
-		middlewares.ClearSession(c)
-		context := gin.H {
-			"title":"Logout",
-			"message":"Logout Successfull",
-		}
-		c.HTML(
-			http.StatusOK,
-			"message.html",
-			context,
-		)
-	}
+	middlewares.ClearSession(c)
+	c.Redirect(
+		http.StatusFound,
+		"/shines/main/login-page",
+	)
 }

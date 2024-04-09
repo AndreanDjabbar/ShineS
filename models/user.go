@@ -14,5 +14,5 @@ type User struct {
     Email    string   `gorm:"not null;size:100"`
     Phone    string   `gorm:"unique"`
     Password string   `gorm:"unique;not null"`
-    Role     string `gorm:"type:ENUM('Admin', 'Seller', 'Customer');not null"`
+    Role     userRole `gorm:"type:ENUM('Admin', 'Seller', 'Customer');not null"`
 }
