@@ -16,3 +16,13 @@ type User struct {
     Password string   `gorm:"unique;not null"`
     Role     userRole `gorm:"type:ENUM('Admin', 'Seller', 'Customer');not null"`
 }
+
+type Profile struct {
+    ProfileId uint   `gorm:"primaryKey"`
+    FirstName string `gorm:"size:50;not null"`
+    LastName string `gorm:"size:50;not null"`
+    Address string `gorm:"size:200;not null"`
+    Image  string `gorm:"default:nil;size:200"`
+    UserID    uint
+    User      User   `gorm:"foreignKey:UserID"`
+}
