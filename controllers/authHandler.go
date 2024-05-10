@@ -6,6 +6,7 @@ import (
 	"shines/models"
 	"strconv"
 	"strings"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -166,7 +167,7 @@ func LoginHandler(c *gin.Context) {
 		[]byte(password),
 	)
 	if err != nil {
-		passwordErr = "Invalid Password"
+		passwordErr = "Invalid Username or Password"
 	}
 
 	if usernameErr == "" && passwordErr == "" {
@@ -176,8 +177,7 @@ func LoginHandler(c *gin.Context) {
 			"/shines/main/home-page",
 		)
 		return
-	}
-
+	} 
 	context := gin.H {
 		"title":"Login",
 		"username":username,

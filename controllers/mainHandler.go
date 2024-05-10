@@ -43,3 +43,24 @@ func ViewHomeHandler(c *gin.Context) {
 		context,
 	)
 }
+
+func ViewPersonalHandler(c *gin.Context) {
+	user := middlewares.GetSession(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	context := gin.H {
+		"title":"Personal Information",
+		"user":user,
+	}
+	c.HTML(
+		http.StatusOK,
+		"profilePersonal.html",
+		context,
+	)
+}
