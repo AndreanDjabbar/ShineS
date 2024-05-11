@@ -170,6 +170,7 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	if usernameErr == "" && passwordErr == "" {
+		CreateProfile(c)
 		middlewares.SaveSession(c, username)
 		c.Redirect(
 			http.StatusFound,
