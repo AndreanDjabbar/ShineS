@@ -94,7 +94,6 @@ func ViewPersonalHandler(c *gin.Context) {
 	}
 	profile := models.Profile{}
 	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&profile)
-	CreateProfile(c)
 	context := gin.H {
 		"title":"Personal Information",
 		"image":profile.Image,

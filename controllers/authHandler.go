@@ -96,6 +96,7 @@ func RegisterHandler(c *gin.Context) {
 				"error.html",
 				context,
 			)
+			return
 		}
 		c.Redirect(
 			http.StatusFound,
@@ -171,6 +172,7 @@ func LoginHandler(c *gin.Context) {
 
 	if usernameErr == "" && passwordErr == "" {
 		middlewares.SaveSession(c, username)
+		CreateProfile(c)
 		c.Redirect(
 			http.StatusFound,
 			"/shines/main/home-page",
