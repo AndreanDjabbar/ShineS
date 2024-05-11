@@ -22,7 +22,7 @@ type Profile struct {
     FirstName string `gorm:"size:50;not null"`
     LastName string `gorm:"size:50;not null"`
     Address string `gorm:"size:200;not null"`
-    Image  string `gorm:"default:nil;size:200"`
+    Image  []byte
     UserID    uint
     User      User   `gorm:"foreignKey:UserID"`
 }
