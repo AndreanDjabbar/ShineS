@@ -12,7 +12,9 @@ import (
 func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("views/html/*.html")
+	router.Static("/images", "./views/images")
 	router.Static("/css", "./views/css")
+	router.MaxMultipartMemory = 8 << 20
 	models.ConnectToDatabase()
 
 	router.GET("/", controllers.RootHandler)

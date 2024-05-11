@@ -19,5 +19,6 @@ func MainRouter(c *gin.RouterGroup) {
 		main.Use(middlewares.AuthSession())
 		main.GET("home-page/", controllers.ViewHomeHandler)
 		main.GET("personal-information-page/", controllers.ViewPersonalHandler)
+		main.POST("personal-information-page/", controllers.PersonalHandler)
 	}
 }

@@ -19,10 +19,10 @@ type User struct {
 
 type Profile struct {
     ProfileId uint   `gorm:"primaryKey"`
-    FirstName string `gorm:"size:50;not null"`
-    LastName string `gorm:"size:50;not null"`
-    Address string `gorm:"size:200;not null"`
-    Image  []byte
+    FirstName string `gorm:"size:50;"`
+    LastName string `gorm:"size:50;"`
+    Address string `gorm:"size:200;"`
+    Image  string `gorm:"size:200"`
     UserID    uint
     User      User   `gorm:"foreignKey:UserID"`
 }

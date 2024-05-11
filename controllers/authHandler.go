@@ -22,7 +22,7 @@ func ViewRegisterHandler(c *gin.Context) {
 	)
 }
 
-func isNumber (strings string) bool {
+func isNumber(strings string) bool {
 	for a := 0; a < len(strings); a++ {
 		_, err := strconv.Atoi(string(strings[a]))
 		if err != nil {
@@ -31,7 +31,6 @@ func isNumber (strings string) bool {
 	}
 	return true
 }
-
 
 func RegisterHandler(c *gin.Context) {
 	var user models.User
@@ -84,7 +83,7 @@ func RegisterHandler(c *gin.Context) {
 			Password: string(hashedPassword),
 			Role: "Customer",
 		}
-
+		
 		err = models.DB.Create(&user).Error
 		if err != nil {
 			context := gin.H{
