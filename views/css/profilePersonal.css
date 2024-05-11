@@ -192,18 +192,14 @@ nav #nav-title {
 }
 
 form .form-username,
-form .form-email,
 form .form-address,
-form .form-phone,
 form .form-picture {
     display: flex;
     flex-direction: column;
 }
 
 form .form-username label,
-form .form-email label,
 form .form-address label,
-form .form-phone label,
 form .form-picture label{
     font-family: Inter;
     font-size: 20px;
@@ -222,15 +218,22 @@ form .form-username input {
     border-radius: 10px;
     background: rgba(238, 238, 238, 1);
     color: black;
-
 }
 
-form .form-email input,
-form .form-address input,
-form .form-phone input,
 form .form-picture input {
     width: 853px;
     height: 41px;
+    font-size: 15px;
+    border: 1px solid rgba(168, 168, 168, 1);
+    padding-left: 10px;
+    border-radius: 10px;
+    background: rgba(238, 238, 238, 1);
+    color: black;
+}
+
+form .form-address input {
+    width: 853px;
+    height: 180px;
     font-size: 15px;
     border: 1px solid rgba(168, 168, 168, 1);
     padding-left: 10px;
