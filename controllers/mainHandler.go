@@ -228,3 +228,28 @@ func PersonalHandler(c *gin.Context) {
 		)
 	}
 }
+
+func ViewCredentialHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	profile := models.Profile{}
+	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&profile)
+	context := gin.H {
+		"title":"Credential Information",
+		"image":profile.Image,
+		"firstName":profile.FirstName,
+		"lastName":profile.LastName,
+		"address":profile.Address,
+	}
+	c.HTML(
+		http.StatusOK,
+		"profileCredential.html",
+		context,
+	)
+}
