@@ -381,6 +381,7 @@ func CredentialHandler(c *gin.Context) {
 			http.StatusFound,
 			"/shines/main/login-page",
 		)
+		return
 	}
 	context := gin.H {
 		"title":"Credential Information",
