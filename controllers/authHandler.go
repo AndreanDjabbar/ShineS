@@ -6,6 +6,7 @@ import (
 	"shines/models"
 	"strconv"
 	"strings"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,7 +22,7 @@ func ViewRegisterHandler(c *gin.Context) {
 	)
 }
 
-func isNumber (strings string) bool {
+func isNumber(strings string) bool {
 	for a := 0; a < len(strings); a++ {
 		_, err := strconv.Atoi(string(strings[a]))
 		if err != nil {
@@ -30,7 +31,6 @@ func isNumber (strings string) bool {
 	}
 	return true
 }
-
 
 func RegisterHandler(c *gin.Context) {
 	var user models.User
@@ -83,7 +83,7 @@ func RegisterHandler(c *gin.Context) {
 			Password: string(hashedPassword),
 			Role: "Customer",
 		}
-
+		
 		err = models.DB.Create(&user).Error
 		if err != nil {
 			context := gin.H{
@@ -96,6 +96,7 @@ func RegisterHandler(c *gin.Context) {
 				"error.html",
 				context,
 			)
+			return
 		}
 		c.Redirect(
 			http.StatusFound,
@@ -166,18 +167,18 @@ func LoginHandler(c *gin.Context) {
 		[]byte(password),
 	)
 	if err != nil {
-		passwordErr = "Invalid Password"
+		passwordErr = "Invalid Username or Password"
 	}
 
 	if usernameErr == "" && passwordErr == "" {
 		middlewares.SaveSession(c, username)
+		CreateProfile(c)
 		c.Redirect(
 			http.StatusFound,
 			"/shines/main/home-page",
 		)
 		return
-	}
-
+	} 
 	context := gin.H {
 		"title":"Login",
 		"username":username,

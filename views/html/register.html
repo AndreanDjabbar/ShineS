@@ -36,7 +36,7 @@
                         <input type="text" name="name" value="{{.username}}" required>
                         <p style="color: red; font-size: 14px; font-family: inter;">{{ .usernameErr }}</p>
                     {{else}}
-                        <input type="text" name="name" required>
+                        <input type="text" name="name" id="name" required>
                     {{ end }}
                 </div>
                 <div class="form-email">
@@ -45,7 +45,7 @@
                         <input type="email" name="email" required value="{{.email}}">
                         <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .emailErr }}</p>
                     {{ else }}
-                        <input type="email" name="email" required>
+                        <input type="email" name="email" id="email" required>
                     {{end}}
                 </div>
                 <div class="form-phone">
@@ -54,12 +54,12 @@
                         <input type="text" name="phone" value="{{.phone}}" required>
                         <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .phoneErr }}</p>
                     {{else}}
-                        <input type="text" name="phone" required>
+                        <input type="text" name="phone" id="phone" required>
                     {{ end }}
                 </div>
                 <div class="form-password">
                     <label for="password">Password</label>
-                    <input type="password" name="password" required>
+                    <input type="password" name="password" id="password" required>
                     {{ if .passwordErr }}
                         <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .passwordErr }}</p>
                     {{ end }}
