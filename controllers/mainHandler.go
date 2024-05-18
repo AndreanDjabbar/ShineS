@@ -341,7 +341,7 @@ func CredentialHandler(c *gin.Context) {
 	if len(email) < 5 {
 		emailErr = "Minimum Email is 5 Characters!"
 	}
-	if len(password1) < 5 {
+	if password1 != "" && len(password1) < 5 {
 		password1Err = "Minimum Password is 5 Characters!"
 	}
 
@@ -350,6 +350,32 @@ func CredentialHandler(c *gin.Context) {
 	}
 
 	if usernameErr == "" && emailErr == "" && password1Err == "" && password2Err == "" {
+		if password1 == "" {
+			newUser := models.User {
+				Username: username,
+				Email: email,
+			}
+			err = models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&newUser).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/credential-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			middlewares.ClearSession(c)
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/login-page",
+			)
+			return
+		}
 		newHashedPassword, err := bcrypt.GenerateFromPassword(
 			[]byte(password1),
 			bcrypt.DefaultCost,
