@@ -22,5 +22,7 @@ func MainRouter(c *gin.RouterGroup) {
 		main.POST("personal-information-page/", controllers.PersonalHandler)
 		main.GET("credential-information-page/", controllers.ViewCredentialHandler)
 		main.POST("credential-information-page/", controllers.CredentialHandler)
+		main.GET("shop-information-page/", controllers.ViewShopHandler)
+		main.POST("shop-information-page/", controllers.ShopHandler)
 	}
 }

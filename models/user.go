@@ -26,3 +26,13 @@ type Profile struct {
     UserID    uint
     User      User   `gorm:"foreignKey:UserID"`
 }
+
+type Shop struct {
+    SellerId uint `gorm:"primaryKey"`
+    ShopName string `gorm:"size:100"`
+    ShopDescription string `gorm:"size:200"`
+    ShopAddress string `gorm:"size:200"`
+    ShopImage string `gorm:"size:200"`
+    UserID uint
+    User User `gorm:"foreignKey:UserID"`
+}
