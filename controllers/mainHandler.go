@@ -512,6 +512,42 @@ func ViewShopHandler(c *gin.Context) {
 	)
 }
 
+func GetRole(c *gin.Context) string {
+	userId := GetIdUser(c)
+	user := models.User{}
+
+	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
+	return string(user.Role)
+}
+
+func SetRole(c *gin.Context) {
+	userId := GetIdUser(c)
+	user := models.User{}
+	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
+	currentRole := GetRole(c)
+	if currentRole == "Customer" {
+		user.Role = "Seller"
+		err := models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&user).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/shop-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			return
+	} else {
+		return
+	}
+
+}
+
 func ShopHandler(c *gin.Context) {
 	shop := models.Shop{}
 	profile := models.Profile{}
@@ -559,6 +595,7 @@ func ShopHandler(c *gin.Context) {
 				)
 				return
 			}
+			SetRole(c)
 			c.Redirect(
 				http.StatusFound,
 				"/shines/main/shop-information-page",
@@ -611,6 +648,7 @@ func ShopHandler(c *gin.Context) {
 				)
 				return
 			}
+			SetRole(c)
 			c.Redirect(
 				http.StatusFound,
 				"/shines/main/shop-information-page",

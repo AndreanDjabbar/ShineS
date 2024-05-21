@@ -17,11 +17,10 @@ func main() {
 	router.MaxMultipartMemory = 8 << 20
 	models.ConnectToDatabase()
 
-	router.GET("/", controllers.RootHandler)
-
 	shines := router.Group("shines/")
 	routers.MainRouter(shines)
-	
+	router.GET("/", controllers.RootHandler)
+
 	err := router.Run("localhost:8000")
 	if err != nil {
 		log.Fatal(err)
