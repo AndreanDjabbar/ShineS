@@ -173,6 +173,7 @@ func LoginHandler(c *gin.Context) {
 	if usernameErr == "" && passwordErr == "" {
 		middlewares.SaveSession(c, username)
 		CreateProfile(c)
+		CreateShop(c)
 		c.Redirect(
 			http.StatusFound,
 			"/shines/main/home-page",
