@@ -98,6 +98,35 @@ func CreateProfile(c *gin.Context) {
 	}
 }
 
+func CreateShop(c *gin.Context) {
+	userId := GetIdUser(c)
+	var count int64
+	models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Count(&count)
+
+	if count > 0 {
+		return
+	} else {
+		shop := models.Shop {
+			UserID: uint(userId),
+			ShopImage: "store.png",
+		}
+		err := models.DB.Create(&shop).Error
+		if err != nil {
+			context := gin.H {
+				"title":"Error",
+				"message":"Failed to Create Data",
+				"source":"/shines/main/personal-information-page",
+			}
+			c.HTML(
+				http.StatusInternalServerError,
+				"error.html",
+				context,
+			)
+			return
+		}	
+	}
+}
+
 func ViewPersonalHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
@@ -425,4 +454,184 @@ func CredentialHandler(c *gin.Context) {
 		"profileCredential.html",
 		context,
 	)
+}
+
+func ViewShopHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	profile := models.Profile{}
+	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&profile).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/shop-information-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	shop := models.Shop{}
+	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&shop).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/shop-information-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	context := gin.H {
+		"title":"Shop Information",
+		"image":profile.Image,
+		"shopName":shop.ShopName,
+		"address":shop.ShopAddress,
+		"description":shop.ShopDescription,
+		"shopImage":shop.ShopImage,
+	}
+	c.HTML(
+		http.StatusOK,
+		"profileShop.html",
+		context,
+	)
+}
+
+func ShopHandler(c *gin.Context) {
+	shop := models.Shop{}
+	profile := models.Profile{}
+	userId := GetIdUser(c)
+
+	models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", userId).First(&shop)
+	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile)
+
+	var shopName, description, address string
+	var shopNameErr, descriptionErr, addressErr, fileErr string
+
+
+	shopName = c.PostForm("shopName")
+	description = c.PostForm("description")
+	address = c.PostForm("address")
+
+	if len(shopName) < 5 {
+		shopNameErr = "Minimum Shop Name is 5 Characters!"
+	}
+
+	if len(address) < 5 {
+		addressErr = "Minimum Shop Address is 5 Characters!"
+	}
+
+	file, err := c.FormFile("photo")
+	if file == nil {
+		if shopNameErr == "" && descriptionErr == ""  && addressErr == "" {
+			shop := models.Shop {
+				UserID: uint(userId),
+				ShopName: shopName,
+				ShopDescription: description,
+				ShopAddress: address,
+			}
+			err := models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Updates(&shop).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/shop-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/shop-information-page",
+			)
+			return
+		}
+		context := gin.H {
+			"title":"Shop Information",
+			"image":profile.Image,
+			"shopName":shop.ShopName,
+			"address":shop.ShopAddress,
+			"description":shop.ShopDescription,
+			"shopImage":shop.ShopImage,
+			"addressErr":addressErr,
+			"shopNameErr":shopNameErr,
+			"descriptionErr":descriptionErr,
+		}
+		c.HTML(
+			http.StatusOK,
+			"profileShop.html",
+			context,
+		)
+	} else {
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+		err = c.SaveUploadedFile(file, "views/images/"+file.Filename)
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+		if shopNameErr == "" && descriptionErr == ""  && addressErr == "" && fileErr == "" {
+			shop = models.Shop {
+				UserID: uint(userId),
+				ShopName: shopName,
+				ShopDescription: description,
+				ShopAddress: address,
+				ShopImage: file.Filename,
+			}
+			err = models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Updates(&shop).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/shop-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/shop-information-page",
+			)
+			return
+		}
+		context := gin.H {
+			"title":"Shop Information",
+			"shopName":shop.ShopName,
+			"address":shop.ShopAddress,
+			"shopImage":shop.ShopImage,
+			"image":profile.Image,
+			"shopNameErr":shopNameErr,
+			"descriptionErr":descriptionErr,
+			"addressErr":addressErr,
+			"fileErr":fileErr,
+		}
+		c.HTML(
+			http.StatusOK,
+			"profileShop.html",
+			context,
+		)
+	}
 }
