@@ -2,12 +2,13 @@ package middlewares
 
 import (
 	"net/http"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
-const userKey = "secret"
+const userKey = "Secret"
 
 func AuthSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
