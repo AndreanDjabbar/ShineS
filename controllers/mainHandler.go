@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -26,9 +26,9 @@ func RootHandler(c *gin.Context) {
 }
 
 func ViewHomeHandler(c *gin.Context) {
+	isSeller := IsSeller(c)
 	user := middlewares.GetSession(c)
 	isLogged := middlewares.CheckSession(c)
-	fmt.Println(isLogged)
 	if !isLogged {
 		c.Redirect(
 			http.StatusFound,
@@ -39,6 +39,7 @@ func ViewHomeHandler(c *gin.Context) {
 	context := gin.H {
 		"title":"Home",
 		"user":user,
+		"isSeller":isSeller,
 	}
 	c.HTML(
 		http.StatusOK,
@@ -47,11 +48,26 @@ func ViewHomeHandler(c *gin.Context) {
 	)
 }
 
-func GetIdUser(c *gin.Context) int {
+func IsSeller(c *gin.Context) bool {
+	role := GetRole(c)
+	if role == "Seller" {
+		return true
+	}
+	return false
+}
+
+func GetuserId(c *gin.Context) int {
 	user := middlewares.GetSession(c)
 	var userId int
 	models.DB.Model(&models.User{}).Select("UserId").Where("username = ?", user).First(&userId)
 	return userId
+}
+
+func GetSellerId(c *gin.Context) int {
+	userId := GetuserId(c)
+	var sellerId int
+	models.DB.Model(&models.Shop{}).Select("SellerId").Where("user_id = ?", userId).First(&sellerId)
+	return sellerId
 }
 
 func GetEmailUser(c *gin.Context) string {
@@ -69,7 +85,7 @@ func GetPasswordUser(c *gin.Context) string {
 }
 
 func CreateProfile(c *gin.Context) {
-	userId := GetIdUser(c)
+	userId := GetuserId(c)
 
 	var count int64
 	models.DB.Model(&models.Profile{}).Where("user_id = ?", userId).Count(&count)
@@ -99,7 +115,7 @@ func CreateProfile(c *gin.Context) {
 }
 
 func CreateShop(c *gin.Context) {
-	userId := GetIdUser(c)
+	userId := GetuserId(c)
 	var count int64
 	models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Count(&count)
 
@@ -137,7 +153,7 @@ func ViewPersonalHandler(c *gin.Context) {
 		return
 	}
 	profile := models.Profile{}
-	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&profile)
+	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile)
 	context := gin.H {
 		"title":"Personal Information",
 		"image":profile.Image,
@@ -154,10 +170,10 @@ func ViewPersonalHandler(c *gin.Context) {
 
 func PersonalHandler(c *gin.Context) {
 	profile := models.Profile{}
-	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&profile)
+	userId := GetuserId(c)
+	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile)
 	var firstName, lastName, address string
 	var firstNameErr, lastNameErr, addressErr, fileErr string
-	userId := GetIdUser(c)
 
 	firstName = c.PostForm("firstname")
 	lastName = c.PostForm("lastname")
@@ -284,7 +300,7 @@ func ViewCredentialHandler(c *gin.Context) {
 	}
 	email := GetEmailUser(c)
 	profile := models.Profile{}
-	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&profile).Error
+	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
 	if err != nil {
 		context := gin.H {
 			"title":"Error",
@@ -325,7 +341,7 @@ func CredentialHandler(c *gin.Context) {
 		return
 	}
 	user := models.User{}
-	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&user).Error
+	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&user).Error
 	if err != nil {
 		context := gin.H {
 			"title":"Error",
@@ -340,7 +356,7 @@ func CredentialHandler(c *gin.Context) {
 		return
 	}
 	profile := models.Profile{}
-	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&profile).Error
+	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
 	if err != nil {
 		context := gin.H {
 			"title":"Error",
@@ -357,7 +373,7 @@ func CredentialHandler(c *gin.Context) {
 	var username, email, password1, password2 string
 	var usernameErr, emailErr, password1Err, password2Err string
 
-	userId := GetIdUser(c)
+	userId := GetuserId(c)
 
 	username = c.PostForm("username")
 	email = c.PostForm("email")
@@ -466,7 +482,7 @@ func ViewShopHandler(c *gin.Context) {
 		return
 	}
 	profile := models.Profile{}
-	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&profile).Error
+	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
 	if err != nil {
 		context := gin.H {
 			"title":"Error",
@@ -482,7 +498,7 @@ func ViewShopHandler(c *gin.Context) {
 	}
 
 	shop := models.Shop{}
-	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", GetIdUser(c)).First(&shop).Error
+	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&shop).Error
 	if err != nil {
 		context := gin.H {
 			"title":"Error",
@@ -513,7 +529,7 @@ func ViewShopHandler(c *gin.Context) {
 }
 
 func GetRole(c *gin.Context) string {
-	userId := GetIdUser(c)
+	userId := GetuserId(c)
 	user := models.User{}
 
 	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
@@ -521,7 +537,7 @@ func GetRole(c *gin.Context) string {
 }
 
 func SetRole(c *gin.Context) {
-	userId := GetIdUser(c)
+	userId := GetuserId(c)
 	user := models.User{}
 	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
 	currentRole := GetRole(c)
@@ -551,7 +567,7 @@ func SetRole(c *gin.Context) {
 func ShopHandler(c *gin.Context) {
 	shop := models.Shop{}
 	profile := models.Profile{}
-	userId := GetIdUser(c)
+	userId := GetuserId(c)
 
 	models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", userId).First(&shop)
 	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile)
@@ -672,4 +688,169 @@ func ShopHandler(c *gin.Context) {
 			context,
 		)
 	}
+}
+
+func ViewCreateProductHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	if role == "Customer" {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/home-page",
+		)
+		return
+	}
+
+	context := gin.H {
+		"title":"Create Product",
+	}
+	c.HTML(
+		http.StatusOK,
+		"createProduct.html",
+		context,
+	)
+}
+
+func CreateProductHandler(c *gin.Context) {
+	var productNameErr, categoryErr, priceErr, quantityErr, fileErr string
+
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+
+	productName := c.PostForm("productName")
+	description := c.PostForm("description")
+	category := c.PostForm("category")
+	priceString := c.PostForm("price")
+	quantityString := c.PostForm("quantity")
+	
+	price, err := strconv.Atoi(priceString)
+	if err != nil {
+		priceErr = "Price must be a number!"
+	}
+	
+	quantity, err := strconv.Atoi(quantityString)
+	if err != nil {
+		quantityErr = "Quantity must be a number!"
+	}
+	
+	if price <= 0 {
+		priceErr = "Price must be greater than 0!"
+	}
+	
+	if quantity <= 0 {
+		quantityErr = "Quantity must be greater than 0!"
+	}
+	
+	if len(productName) < 3 {
+		productNameErr = "Minimum Product Name is 3 Characters!"
+	}
+	
+	if category == "" {
+		categoryErr = "Category must be selected!"
+	}
+
+	file, err := c.FormFile("photo")
+	if file == nil {
+		if productNameErr == "" && categoryErr == "" && priceErr == "" && quantityErr == "" {
+			sellerId := GetSellerId(c)
+			product := models.Product {
+				ShopId: uint(sellerId),
+				ProductName: productName,
+				ProductDescription: description,
+				ProductCategory: category,
+				ProductPrice: float64(price),
+				ProductStock: uint(quantity),
+			}
+			err := models.DB.Create(&product).Error
+			if err != nil {
+				context := gin.H {
+					"title":"Error",
+					"message":"Failed to Create Data",
+					"source":"/shines/main/create-product-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/home-page",
+			)
+			return
+		}
+	} else {
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+		err = c.SaveUploadedFile(file, "views/images/"+file.Filename)
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+
+		if productNameErr == "" && categoryErr == "" && priceErr == "" && quantityErr == "" && fileErr == "" {
+			sellerId := GetSellerId(c)
+			product := models.Product {
+				ShopId: uint(sellerId),
+				ProductName: productName,
+				ProductDescription: description,
+				ProductCategory: category,
+				ProductPrice: float64(price),
+				ProductStock: uint(quantity),
+				ProductImage: file.Filename,
+			}
+			err := models.DB.Create(&product).Error
+			if err != nil {
+				context := gin.H {
+					"title":"Error",
+					"message":"Failed to Create Data",
+					"source":"/shines/main/create-product-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/home-page",
+			)
+			return
+		}
+	}
+	context := gin.H {
+		"title":"Create Product",
+		"productNameErr":productNameErr,
+		"categoryErr":categoryErr,
+		"priceErr":priceErr,
+		"quantityErr":quantityErr,
+		"fileErr":fileErr,
+		"productName":productName,
+		"description":description,
+		"category":category,
+		"price":price,
+		"quantity":quantity,
+	}
+	c.HTML(
+		http.StatusOK,
+		"createProduct.html",
+		context,
+	)
 }

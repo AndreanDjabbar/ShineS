@@ -13,5 +13,8 @@
     <br>
     <a href="/shines/main/logout-page">Logout</a>
     <a href="/shines/main/personal-information-page">Personal Information</a>
+    {{ if .isSeller }}
+        <a href="/shines/main/create-product-page/">Create Product</a>
+    {{end}}
 </body>
 </html>
