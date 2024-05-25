@@ -673,3 +673,41 @@ func ShopHandler(c *gin.Context) {
 		)
 	}
 }
+
+func ViewProductHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	context := gin.H {
+		"title":"Create Product",
+	}
+	c.HTML(
+		http.StatusOK,
+		"createProduct.html",
+		context,
+	)
+}
+
+func ProductHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	context := gin.H {
+		"title":"Create Product",
+	}
+	c.HTML(
+		http.StatusOK,
+		"createProduct.html",
+		context,
+	)
+}
