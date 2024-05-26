@@ -772,6 +772,7 @@ func CreateProductHandler(c *gin.Context) {
 				ProductDescription: description,
 				ProductCategory: category,
 				ProductPrice: float64(price),
+				ProductImage: "productDefault.png",
 				ProductStock: uint(quantity),
 			}
 			err := models.DB.Create(&product).Error
@@ -851,6 +852,205 @@ func CreateProductHandler(c *gin.Context) {
 	c.HTML(
 		http.StatusOK,
 		"createProduct.html",
+		context,
+	)
+}
+
+func ViewUpdateProductHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	if role == "Customer" {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/home-page",
+		)
+		return
+	}
+
+	productId := c.Param("productId")
+	product := models.Product{}
+	err := models.DB.Model(&models.Product{}).Select("*").Where("Product_id = ?", productId).First(&product).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/home-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	context := gin.H {
+		"title":"Update Product",
+		"productName":product.ProductName,
+		"description":product.ProductDescription,
+		"category":product.ProductCategory,
+		"price":product.ProductPrice,
+		"productImage":product.ProductImage,
+		"quantity":product.ProductStock,
+		"productId":productId,
+	}
+	c.HTML(
+		http.StatusOK,
+		"updateProduct.html",
+		context,
+	)
+}
+
+func UpdateProductHandler(c *gin.Context) {
+	var productNameErr, categoryErr, priceErr, quantityErr, fileErr string
+
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+
+	productName := c.PostForm("productName")
+	description := c.PostForm("description")
+	category := c.PostForm("category")
+	priceString := c.PostForm("price")
+	quantityString := c.PostForm("quantity")
+	
+	productId := c.Param("productId")
+	product := models.Product{}
+	err := models.DB.Model(&models.Product{}).Select("*").Where("Product_id = ?", productId).First(&product).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/home-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	price, err := strconv.Atoi(priceString)
+	if err != nil {
+		priceErr = "Price must be a number!"
+	}
+	
+	quantity, err := strconv.Atoi(quantityString)
+	if err != nil {
+		quantityErr = "Quantity must be a number!"
+	}
+	
+	if price <= 0 {
+		priceErr = "Price must be greater than 0!"
+	}
+	
+	if quantity <= 0 {
+		quantityErr = "Quantity must be greater than 0!"
+	}
+	
+	if len(productName) < 3 {
+		productNameErr = "Minimum Product Name is 3 Characters!"
+	}
+	
+	if category == "" {
+		categoryErr = "Category must be selected!"
+	}
+
+	file, err := c.FormFile("photo")
+	if file == nil {
+		if productNameErr == "" && categoryErr == "" && priceErr == "" && quantityErr == "" {
+			product.ProductName = productName
+			product.ProductDescription = description
+			product.ProductCategory = category
+			product.ProductPrice = float64(price)
+			product.ProductStock = uint(quantity)
+			err = models.DB.Model(&models.Product{}).Where("Product_id = ?", productId).Updates(&product).Error
+			if err != nil {
+				context := gin.H {
+					"title":"Error",
+					"message":"Failed to Update Data",
+					"source":"/shines/main/home-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/home-page",
+			)
+			return
+		}
+	} else {
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+		err = c.SaveUploadedFile(file, "views/images/"+file.Filename)
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+
+		if productNameErr == "" && categoryErr == "" && priceErr == "" && quantityErr == "" && fileErr == "" {
+			product.ProductName = productName
+			product.ProductDescription = description
+			product.ProductCategory = category
+			product.ProductPrice = float64(price)
+			product.ProductStock = uint(quantity)
+			product.ProductImage = file.Filename
+			err = models.DB.Model(&models.Product{}).Where("Product_id = ?", productId).Updates(&product).Error
+			if err != nil {
+				context := gin.H {
+					"title":"Error",
+					"message":"Failed to Update Data",
+					"source":"/shines/main/home-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/home-page",
+			)
+			return
+		}
+	}
+
+	context := gin.H {
+		"title":"Update Product",
+		"productNameErr":productNameErr,
+		"categoryErr":categoryErr,
+		"priceErr":priceErr,
+		"quantityErr":quantityErr,
+		"fileErr":fileErr,
+		"productName":productName,
+		"description":description,
+		"category":category,
+		"price":price,
+		"quantity":quantity,
+		"productImage":product.ProductImage,
+	}
+	c.HTML(
+		http.StatusOK,
+		"updateProduct.html",
 		context,
 	)
 }
