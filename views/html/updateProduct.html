@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/css/updateProduct.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="" id="nav-title">ShineS</a>
+        </div>
+        <div class="nav-right">
+            <ul class="nav-right1">
+                <li><a href="/shines/main/home-page">Home</a></li>
+                <li><a href="">Category</a></li>
+            </ul>
+            <ul class="nav-right2">
+                <li><a href="">Cart</a></li>
+                <li><a href="../personal-information-page/">Profile</a></li>
+                <li><a href="../logout-page">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="content">
+        <div class="content-first">
+            <a href="" id="content-first-title">Update Product</a>
+            <form method="post" enctype="multipart/form-data">
+                <div class="main-info">
+                    <div class="main-info-1">
+                        <div class="form-productName">
+                            <label for="shopName">Product Name</label>
+                            {{ if .productName }}
+                            <input type="text" id="productName" name="productName" value="{{.productName}}" required>
+                            {{ else }}
+                            <input type="text" id="productName" name="productName" required placeholder="Input Product Name">
+                            {{ end }}
+                            {{ if .productNameErr }}
+                            <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .productNameErr }}</p>
+                            {{ end }}
+                        </div>
+                        <div class="form-description">
+                        <label for="description">Description</label>
+                        {{ if .description }}
+                        <input type="text" id="description" name="description" value="{{.description}}" required>
+                        {{ else }}
+                        <input type="text" id="description" name="description" required placeholder="Input Description">
+                        {{ end }}
+                        {{ if .descriptionErr }}
+                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .descriptionErr }}</p>
+                        {{ end }}
+                        </div>
+                    </div>
+                    <img src="/images/{{.productImage}}" alt="">
+                </div>
+                <div class="form-category">
+                    <label for="category">Product Category</label>
+                    {{  if .category }}
+                        <select name="category" id="category">
+                            <option value="Bunga" {{ if eq .category "Bunga" }}selected{{ end }}>Bunga</option>
+                            <option value="Peralatan" {{ if eq .category "Peralatan" }}selected{{ end }}>Peralatan</option>
+                            <option value="Pupuk" {{ if eq .category "Pupuk" }}selected{{ end }}>Pupuk</option>
+                            <option value="Bibit" {{ if eq .category "Bibit" }}selected{{ end }}>Bibit</option>
+                            <option value="Aksesoris" {{ if eq .category "Aksesoris" }}selected{{ end }}>Aksesoris</option>
+                            <option value="Others" {{ if eq .category "Others" }}selected{{ end }}>Others</option>
+                        </select>
+                    {{ else }}
+                    <select name="category" id="category">
+                        <option value="Bunga">Bunga</option>
+                        <option value="Peralatan">Peralatan</option>
+                        <option value="Pupuk">Pupuk</option>
+                        <option value="Bibit">Bibit</option>
+                        <option value="Aksesoris">Aksesoris</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    {{ end }}
+                    {{ if .categoryErr }}
+                    <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .categoryErr }}</p>
+                    {{ end }}
+                </div>
+                <div class="form-amount">
+                    <div class="price">
+                        <label for="price">Price</label>
+                        {{  if .price }}
+                        <input type="number" id="price" name="price" value="{{.price}}" min="1" step="1">
+                        {{ else }}
+                        <input type="number" id="price" name="price" min="1" step="1">
+                        {{ end }}
+                        {{ if .priceErr }}
+                            <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .priceErr }}</p>
+                        {{ end }}
+                    </div>
+                    <div class="quantity">
+                        <label for="quantity">Quantity</label>
+                        {{  if .quantity }}
+                        <input type="number" id="quantity" name="quantity" value="{{.quantity}}">
+                        {{ else }}
+                        <input type="number" id="quantity" name="quantity"
+                        min="1" step="1">
+                        {{ end }}
+                        {{ if .quantityErr }}
+                            <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .quantityErr }}</p>
+                        {{ end }}
+                    </div>
+                </div>
+                <div class="form-photo">
+                    <label for="photo">Product Image</label>
+                    <input type="file" id="photo" name="photo">
+                    {{ if .fileErr }}
+                    <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .fieErr }}</p>
+                    {{ end }}
+                </div>
+                <button type="submit">Update Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
