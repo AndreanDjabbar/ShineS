@@ -26,5 +26,7 @@ func MainRouter(c *gin.RouterGroup) {
 		main.POST("shop-information-page/", controllers.ShopHandler)
 		main.GET("create-product-page/", controllers.ViewCreateProductHandler)
 		main.POST("create-product-page/", controllers.CreateProductHandler)
+		main.GET("update-product-page/", controllers.ViewUpdateProductHandler)
+		main.POST("update-product-page/", controllers.UpdateProductHandler)
 	}
 }
