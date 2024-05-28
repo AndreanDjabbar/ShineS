@@ -137,3 +137,23 @@ func SetRole(c *gin.Context) {
 		return
 	}
 }
+
+func GetShopId(c *gin.Context) int {
+	userId := GetuserId(c)
+	var shopId int
+	err := models.DB.Model(&models.Shop{}).Select("seller_id").Where("user_id = ?", userId).First(&shopId).Error
+	if err != nil {
+		context := gin.H{
+			"title":   "Error",
+			"message": "Failed to Get Data",
+			"source":  "/shines/main/shop-information-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return 0
+	}
+	return shopId
+}

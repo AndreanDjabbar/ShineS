@@ -961,3 +961,50 @@ func UpdateProductHandler(c *gin.Context) {
 		context,
 	)
 }
+
+func ViewSellerCatalogHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	if role == "Customer" {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/home-page",
+		)
+		return
+	}
+
+	shopId := GetShopId(c)
+	products := []models.Product{}
+	err := models.DB.Model(&models.Product{}).Select("*").Where("Shop_id = ?", shopId).Find(&products).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/seller-catalog-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	context := gin.H {
+		"title":"Seller Catalog",
+		"products":products,
+		"isSeller":IsSeller(c),
+	}
+	c.HTML(
+		http.StatusOK,
+		"sellerCatalog.html",
+		context,
+	)
+}
