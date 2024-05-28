@@ -26,7 +26,6 @@ func RootHandler(c *gin.Context) {
 }
 
 func ViewHomeHandler(c *gin.Context) {
-	isSeller := IsSeller(c)
 	user := middlewares.GetSession(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
@@ -39,108 +38,13 @@ func ViewHomeHandler(c *gin.Context) {
 	context := gin.H {
 		"title":"Home",
 		"user":user,
-		"isSeller":isSeller,
+		"isSeller":IsSeller(c),
 	}
 	c.HTML(
 		http.StatusOK,
 		"home.html",
 		context,
 	)
-}
-
-func IsSeller(c *gin.Context) bool {
-	role := GetRole(c)
-	if role == "Seller" {
-		return true
-	}
-	return false
-}
-
-func GetuserId(c *gin.Context) int {
-	user := middlewares.GetSession(c)
-	var userId int
-	models.DB.Model(&models.User{}).Select("UserId").Where("username = ?", user).First(&userId)
-	return userId
-}
-
-func GetSellerId(c *gin.Context) int {
-	userId := GetuserId(c)
-	var sellerId int
-	models.DB.Model(&models.Shop{}).Select("SellerId").Where("user_id = ?", userId).First(&sellerId)
-	return sellerId
-}
-
-func GetEmailUser(c *gin.Context) string {
-	user := middlewares.GetSession(c)
-	var email string
-	models.DB.Model(&models.User{}).Select("Email").Where("username = ?", user).First(&email)
-	return email
-}
-
-func GetPasswordUser(c *gin.Context) string {
-	user := middlewares.GetSession(c)
-	var password string
-	models.DB.Model(&models.User{}).Select("Password").Where("username = ?", user).First(&password)	
-	return password
-}
-
-func CreateProfile(c *gin.Context) {
-	userId := GetuserId(c)
-
-	var count int64
-	models.DB.Model(&models.Profile{}).Where("user_id = ?", userId).Count(&count)
-
-	if count > 0 {
-		return
-	} else {
-		profile := models.Profile {
-			UserID: uint(userId),
-			Image: "default.png",
-		}
-		err := models.DB.Create(&profile).Error
-		if err != nil {
-			context := gin.H {
-				"title":"Error",
-				"message":"Failed to Create Data",
-				"source":"/shines/main/personal-information-page",
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
-			return
-		}	
-	}
-}
-
-func CreateShop(c *gin.Context) {
-	userId := GetuserId(c)
-	var count int64
-	models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Count(&count)
-
-	if count > 0 {
-		return
-	} else {
-		shop := models.Shop {
-			UserID: uint(userId),
-			ShopImage: "store.png",
-		}
-		err := models.DB.Create(&shop).Error
-		if err != nil {
-			context := gin.H {
-				"title":"Error",
-				"message":"Failed to Create Data",
-				"source":"/shines/main/personal-information-page",
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
-			return
-		}	
-	}
 }
 
 func ViewPersonalHandler(c *gin.Context) {
@@ -154,12 +58,14 @@ func ViewPersonalHandler(c *gin.Context) {
 	}
 	profile := models.Profile{}
 	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile)
+
 	context := gin.H {
 		"title":"Personal Information",
 		"image":profile.Image,
 		"firstName":profile.FirstName,
 		"lastName":profile.LastName,
 		"address":profile.Address,
+		"isSeller":IsSeller(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -280,6 +186,7 @@ func PersonalHandler(c *gin.Context) {
 			"lastNameErr":lastNameErr,
 			"addressErr":addressErr,
 			"fileErr":fileErr,
+			"isSeller":IsSeller(c),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -323,7 +230,9 @@ func ViewCredentialHandler(c *gin.Context) {
 		"lastName":profile.LastName,
 		"address":profile.Address,
 		"email":email,
+		"isSeller":IsSeller(c),
 	}
+
 	c.HTML(
 		http.StatusOK,
 		"profileCredential.html",
@@ -464,6 +373,7 @@ func CredentialHandler(c *gin.Context) {
 		"emailErr":emailErr,
 		"password1Err":password1Err,
 		"password2Err":password2Err,
+		"isSeller":IsSeller(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -512,7 +422,6 @@ func ViewShopHandler(c *gin.Context) {
 		)
 		return
 	}
-
 	context := gin.H {
 		"title":"Shop Information",
 		"image":profile.Image,
@@ -521,47 +430,21 @@ func ViewShopHandler(c *gin.Context) {
 		"description":shop.ShopDescription,
 		"shopImage":shop.ShopImage,
 	}
+
+	isSeller := IsSeller(c)
+	if !isSeller {
+		context["isSeller"] = false
+		context["buttonCmnd"] = "Register"
+	} else {
+		context["isSeller"] = true
+		context["buttonCmnd"] = "Update"
+	}
+
 	c.HTML(
 		http.StatusOK,
 		"profileShop.html",
 		context,
 	)
-}
-
-func GetRole(c *gin.Context) string {
-	userId := GetuserId(c)
-	user := models.User{}
-
-	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
-	return string(user.Role)
-}
-
-func SetRole(c *gin.Context) {
-	userId := GetuserId(c)
-	user := models.User{}
-	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
-	currentRole := GetRole(c)
-	if currentRole == "Customer" {
-		user.Role = "Seller"
-		err := models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&user).Error
-			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/shop-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
-				return
-			}
-			return
-	} else {
-		return
-	}
-
 }
 
 func ShopHandler(c *gin.Context) {
@@ -629,6 +512,16 @@ func ShopHandler(c *gin.Context) {
 			"shopNameErr":shopNameErr,
 			"descriptionErr":descriptionErr,
 		}
+
+		isSeller := IsSeller(c)
+		if !isSeller {
+			context["isSeller"] = false
+			context["buttonCmnd"] = "Register"
+		} else {
+			context["isSeller"] = true
+			context["buttonCmnd"] = "Update"
+		}
+
 		c.HTML(
 			http.StatusOK,
 			"profileShop.html",
@@ -682,6 +575,16 @@ func ShopHandler(c *gin.Context) {
 			"addressErr":addressErr,
 			"fileErr":fileErr,
 		}
+
+		isSeller := IsSeller(c)
+		if !isSeller {
+			context["isSeller"] = false
+			context["buttonCmnd"] = "Register"
+		} else {
+			context["isSeller"] = true
+			context["buttonCmnd"] = "Update"
+		}
+
 		c.HTML(
 			http.StatusOK,
 			"profileShop.html",
@@ -710,6 +613,7 @@ func ViewCreateProductHandler(c *gin.Context) {
 
 	context := gin.H {
 		"title":"Create Product",
+		"isSeller":IsSeller(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -847,6 +751,7 @@ func CreateProductHandler(c *gin.Context) {
 		"description":description,
 		"category":category,
 		"price":price,
+		"isSeller":IsSeller(c),
 		"quantity":quantity,
 	}
 	c.HTML(
@@ -899,6 +804,7 @@ func ViewUpdateProductHandler(c *gin.Context) {
 		"productImage":product.ProductImage,
 		"quantity":product.ProductStock,
 		"productId":productId,
+		"isSeller":IsSeller(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1046,6 +952,7 @@ func UpdateProductHandler(c *gin.Context) {
 		"category":category,
 		"price":price,
 		"quantity":quantity,
+		"isSeller":IsSeller(c),
 		"productImage":product.ProductImage,
 	}
 	c.HTML(
