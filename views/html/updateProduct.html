@@ -118,7 +118,10 @@
                     <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .fieErr }}</p>
                     {{ end }}
                 </div>
-                <button type="submit">Update Product</button>
+                <div class="command-button">
+                    <a href="/shines/main/delete-confirmation-page/{{.productId}}">Delete</a>
+                    <button type="submit">Update Product</button>
+                </div>
                 </form>
             </div>
         </div>
