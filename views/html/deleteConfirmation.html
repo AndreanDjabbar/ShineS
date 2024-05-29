@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/css/deleteConfirmation.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="" id="nav-title">ShineS</a>
+        </div>
+        <div class="nav-right">
+            <ul class="nav-right1">
+                <li><a href="/shines/main/home-page">Home</a></li>
+                <li><a href="">Category</a></li>
+                {{ if .isSeller }}
+                    <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
+                {{ end }}
+            </ul>
+            <ul class="nav-right2">
+                <li><a href="">Cart</a></li>
+                <li><a href="../personal-information-page/">Profile</a></li>
+                <li><a href="../logout-page">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="content">
+        <div class="content-first">
+            <div class="content-first-nav">
+                <a href="" id="content-first-title">Delete Product</a>
+            </div>
+            <div class="content-second">
+                    <div class="product">
+                        <img src="/images/{{.productImage}}" alt="" srcset="">
+                        <div class="product-info">
+                            <p><b>{{.productName}}</b></p>
+                            <p>Price: {{.productPrice}}</p>
+                            <p>Stock: {{.productStock}} pcs</p>
+                            <p>Description: {{.productDescription}}</p>
+                        </div>
+                        <p>Are your sure want to delete this product? </p>
+                        <div class="command-button">
+                            <a href="/shines/main/update-product-page/{{.productId}}" id="cancel-button">Cancel</a>
+                            <a href="/shines/main/delete-product-page/{{.productId}}" id="delete-button">Delete</a>
+                        </div>
+                    </div>
+                    <br><br>
+            </div>
+        </div>
+    </div>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
