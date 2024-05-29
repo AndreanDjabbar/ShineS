@@ -157,3 +157,23 @@ func GetShopId(c *gin.Context) int {
 	}
 	return shopId
 }
+
+func DeleteProduct(c *gin.Context, productId string) {
+	var product models.Product
+	models.DB.Where("product_id = ?", productId).First(&product)
+	err := models.DB.Delete(&product).Error
+	if err != nil {
+		context := gin.H{
+			"title":   "Error",
+			"message": "Failed to Delete Data",
+			"source":  "/shines/main/seller-catalog-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	c.Redirect(http.StatusFound, "/shines/main/seller-catalog-page")
+}
