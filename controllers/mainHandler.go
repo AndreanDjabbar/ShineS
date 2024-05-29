@@ -1008,3 +1008,96 @@ func ViewSellerCatalogHandler(c *gin.Context) {
 		context,
 	)
 }
+
+func ViewDeleteConfirmationHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	if role == "Customer" {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/home-page",
+		)
+		return
+	}
+
+	productId := c.Param("productId")
+	product := models.Product{}
+	err := models.DB.Model(&models.Product{}).Select("*").Where("Product_id = ?", productId).First(&product).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/seller-catalog-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	context := gin.H {
+		"title":"Delete Confirmation",
+		"productName":product.ProductName,
+		"productId":productId,
+		"productPrice":product.ProductPrice,
+		"productStock":product.ProductStock,
+		"productImage":product.ProductImage,
+		"productDescription":product.ProductDescription,
+		"isSeller":IsSeller(c),
+	}
+	c.HTML(
+		http.StatusOK,
+		"deleteConfirmation.html",
+		context,
+	)
+}
+
+func DeleteProductHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	if role == "Customer" {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/home-page",
+		)
+		return
+	}
+
+	productId := c.Param("productId")
+	product := models.Product{}
+	err := models.DB.Model(&models.Product{}).Select("*").Where("Product_id = ?", productId).First(&product).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/seller-catalog-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	DeleteProduct(c, productId)
+	c.Redirect(
+		http.StatusFound,
+		"/shines/main/seller-catalog-page",
+	)
+}
