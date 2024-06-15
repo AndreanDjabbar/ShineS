@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="" id="nav-title">ShineS</a>
+        </div>
+        <div class="nav-right">
+            <ul class="nav-right1">
+                <li><a href="/shines/main/home-page">Home</a></li>
+                <li><a href="">Category</a></li>
+                {{ if .isSeller }}
+                    <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
+                {{ end }}
+                {{ if .isAdmin }}
+                <li><a href="/shines/main/administrator-page/">Administration</a></li>
+                {{ end }}
+            </ul>
+            <ul class="nav-right2">
+                <li><a href="">Cart</a></li>
+                <li><a href="../personal-information-page/">Profile</a></li>
+                <li><a href="../logout-page">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="content">
+        <div class="content-first">
+            <h3>All Users</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Detail Button</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $index, $user := .users}}
+                    <tr>
+                        <th scope="row">{{$index | add1}}</th>
+                        <td>{{$user.Username}}</td>
+                        <td>{{$user.Email}}</td>
+                        <td>{{$user.Phone}}</td>
+                        <td>{{$user.Role}}</td>
+                        <td><a href="">Detail</a></td>
+                    </tr>
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
