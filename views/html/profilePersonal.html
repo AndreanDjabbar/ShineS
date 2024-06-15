@@ -22,6 +22,9 @@
                 {{ if .isSeller }}
                 <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
                 {{ end }}
+                {{ if .isAdmin }}
+                <li><a href="/shines/main/administrator-page/">Administration</a></li>
+                {{ end }}
             </ul>
             <ul class="nav-right2">
                 <li><a href="">Cart</a></li>

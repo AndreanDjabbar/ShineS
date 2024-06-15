@@ -66,6 +66,7 @@ func ViewPersonalHandler(c *gin.Context) {
 		"lastName":profile.LastName,
 		"address":profile.Address,
 		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -187,6 +188,7 @@ func PersonalHandler(c *gin.Context) {
 			"addressErr":addressErr,
 			"fileErr":fileErr,
 			"isSeller":IsSeller(c),
+			"isAdmin":IsAdmin(c),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -231,6 +233,7 @@ func ViewCredentialHandler(c *gin.Context) {
 		"address":profile.Address,
 		"email":email,
 		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
 	}
 
 	c.HTML(
@@ -374,6 +377,7 @@ func CredentialHandler(c *gin.Context) {
 		"password1Err":password1Err,
 		"password2Err":password2Err,
 		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -429,6 +433,7 @@ func ViewShopHandler(c *gin.Context) {
 		"address":shop.ShopAddress,
 		"description":shop.ShopDescription,
 		"shopImage":shop.ShopImage,
+		"isAdmin":IsAdmin(c),
 	}
 
 	isSeller := IsSeller(c)
@@ -511,6 +516,7 @@ func ShopHandler(c *gin.Context) {
 			"addressErr":addressErr,
 			"shopNameErr":shopNameErr,
 			"descriptionErr":descriptionErr,
+			"isAdmin":IsAdmin(c),
 		}
 
 		isSeller := IsSeller(c)
@@ -574,6 +580,7 @@ func ShopHandler(c *gin.Context) {
 			"descriptionErr":descriptionErr,
 			"addressErr":addressErr,
 			"fileErr":fileErr,
+			"isAdmin":IsAdmin(c),
 		}
 
 		isSeller := IsSeller(c)
@@ -753,6 +760,7 @@ func CreateProductHandler(c *gin.Context) {
 		"price":price,
 		"isSeller":IsSeller(c),
 		"quantity":quantity,
+		"isAdmin":IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -805,6 +813,7 @@ func ViewUpdateProductHandler(c *gin.Context) {
 		"quantity":product.ProductStock,
 		"productId":productId,
 		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -953,6 +962,7 @@ func UpdateProductHandler(c *gin.Context) {
 		"price":price,
 		"quantity":quantity,
 		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
 		"productImage":product.ProductImage,
 	}
 	c.HTML(
@@ -1001,6 +1011,7 @@ func ViewSellerCatalogHandler(c *gin.Context) {
 		"title":"Seller Catalog",
 		"products":products,
 		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1053,6 +1064,7 @@ func ViewDeleteConfirmationHandler(c *gin.Context) {
 		"productImage":product.ProductImage,
 		"productDescription":product.ProductDescription,
 		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1099,5 +1111,50 @@ func DeleteProductHandler(c *gin.Context) {
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/seller-catalog-page",
+	)
+}
+
+func ViewAdminHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	if role != "Admin" {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/home-page",
+		)
+		return
+	}
+	users := []models.User{}
+	err := models.DB.Model(&models.User{}).Select("*").Find(&users).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+		"message":"Failed to Get Data",
+		"source":"/shines/main/administrator-page",
+	}
+	c.HTML(
+		http.StatusInternalServerError,
+		"error.html",
+		context,
+	)
+	return
+}
+	context := gin.H {
+		"title":"Administrator",
+		"users":users,
+		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
+	}
+	c.HTML(
+		http.StatusOK,
+		"admin.html",
+		context,
 	)
 }

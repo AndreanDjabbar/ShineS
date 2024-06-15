@@ -5,12 +5,16 @@ import (
 	"shines/controllers"
 	"shines/models"
 	"shines/routers"
+	"text/template"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.Default()
+	router.SetFuncMap(template.FuncMap{
+		"add1": controllers.Add1,
+	})
 	router.LoadHTMLGlob("views/html/*.html")
 	router.Static("/images", "./views/images")
 	router.Static("/css", "./views/css")

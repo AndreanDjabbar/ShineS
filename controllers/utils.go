@@ -16,6 +16,19 @@ func IsSeller(c *gin.Context) bool {
 	return false
 }
 
+func Add1(x int) int {
+    return x + 1
+}
+
+
+func IsAdmin(c *gin.Context) bool {
+	role := GetRole(c)
+	if role == "Admin" {
+		return true
+	}
+	return false
+}
+
 func GetuserId(c *gin.Context) int {
 	user := middlewares.GetSession(c)
 	var userId int
