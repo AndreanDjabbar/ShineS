@@ -31,5 +31,6 @@ func MainRouter(c *gin.RouterGroup) {
 		main.GET("seller-catalog-page/", controllers.ViewSellerCatalogHandler)
 		main.GET("delete-confirmation-page/:productId", controllers.ViewDeleteConfirmationHandler)
 		main.GET("delete-product-page/:productId", controllers.DeleteProductHandler)
+		main.GET("administrator-page/", controllers.ViewAdminHandler)
 	}
 }
