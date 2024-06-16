@@ -1158,3 +1158,66 @@ func ViewAdminHandler(c *gin.Context) {
 		context,
 	)
 }
+
+func ViewDetailUserHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	if role != "Admin" {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/home-page",
+		)
+		return
+	}
+	userId := c.Param("userId")
+	profile := models.Profile{}
+	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/administrator-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	credential := models.User{}
+	err = models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&credential).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/administrator-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	
+	}
+	context	:= gin.H {
+		"title":"Detail User",
+		"profile":profile,
+		"credential":credential,
+		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
+	}
+	c.HTML(
+		http.StatusOK,
+		"detailUser.html",
+		context,
+	)
+}
