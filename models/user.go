@@ -20,19 +20,19 @@ type User struct {
 type Profile struct {
     ProfileId uint   `gorm:"primaryKey"`
     FirstName string `gorm:"size:50;"`
-    LastName string `gorm:"size:50;"`
-    Address string `gorm:"size:200;"`
-    Image  string `gorm:"size:200"`
+    LastName  string `gorm:"size:50;"`
+    Address   string `gorm:"size:200;"`
+    Image     string `gorm:"size:200"`
     UserID    uint
-    User      User   `gorm:"foreignKey:UserID"`
+    User      User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 }
 
 type Shop struct {
-    SellerId uint `gorm:"primaryKey"`
-    ShopName string `gorm:"size:100"`
+    SellerId        uint   `gorm:"primaryKey"`
+    ShopName        string `gorm:"size:100"`
     ShopDescription string `gorm:"size:200"`
-    ShopAddress string `gorm:"size:200"`
-    ShopImage string `gorm:"size:200"`
-    UserID uint
-    User User `gorm:"foreignKey:UserID"`
+    ShopAddress     string `gorm:"size:200"`
+    ShopImage       string `gorm:"size:200"`
+    UserID          uint
+    User            User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 }
