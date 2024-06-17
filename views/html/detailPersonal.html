@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.title}}</title>
-    <link rel="stylesheet" href="/css/profileCredential.css">
+    <link rel="stylesheet" href="/css/detailPersonal.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
                 <li><a href="/shines/main/home-page">Home</a></li>
                 <li><a href="">Category</a></li>
                 {{ if .isSeller }}
-                    <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
+                <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
                 {{ end }}
                 {{ if .isAdmin }}
                 <li><a href="/shines/main/administrator-page/">Administration</a></li>
@@ -38,74 +38,76 @@
             <div class="content-first-profile">
                 <img src="/images/{{.image}}" alt="" srcset="">
                 <ul>
-                    <li><a href="/shines/main/personal-information-page/">
+                    <li><a href="/shines/main/personal-information-page/" id="active">
                         <div class="link-user">
                             <i data-feather="user"></i>
                             <p>Personal Information</p>
                         </div>
                     </a></li>
-                    <li><a href="/shines/main/credential-information-page/" id="active">
+                    <li><a href="/shines/main/credential-information-page/">
                         <div class="link-credential">
                             <i data-feather="key"></i>
                             <p>Credentials</p>
                         </div>
                     </a></li>
-                    {{ if .isSeller }}
                     <li><a href="/shines/main/shop-information-page/">
                         <div class="link-seller">
                             <i data-feather="shopping-bag"></i>
                             <p>Shop Profile</p>
                         </div>
                     </a></li>
-                    {{ else }}
-                    <li><a href="/shines/main/shop-information-page/">
-                        <div class="link-seller">
-                            <i data-feather="shopping-bag"></i>
-                            <p>Seller Registration</p>
-                        </div>
-                    </a></li>
-                    {{ end }}
                 </ul>
             </div>
         </div>
         <div class="content-second">
-            <a href="" id="content-second-title">Credential Information</a>
+            <a href="" id="content-second-title">Personal Information</a>
             <form method="post" enctype="multipart/form-data">
-                <div class="form-username">
-                    <label for="username">Username</label>
-                        {{ if .username }}
-                            <input type="text" id="username" name="username" value="{{.username}}" required>
+                <div class="form-fullname">
+                    <div class="form-username">
+                        <label for="firstname">First Name</label>
+                        {{ if .firstName }}
+                            <input type="text" id="firstname" name="firstname" value="{{.firstName}}">
                         {{ else }}
-                            <input type="text" id="username" name="username" required placeholder="Input Your Username">
+                            <input type="text" id="firstname" name="firstname" placeholder="First Name Unset">
                         {{ end }}
+                        {{ if .firstNameErr }}
+                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .firstNameErr }}</p>
+                        {{ end }}
+                    </div>
+                    <div class="form-username">
+                        <label for="lastname">Last Name</label>
+                        {{ if .lastName }}
+                            <input type="text" id="lastname" name="lastname" value="{{.lastName}}">
+                        {{ else }}
+                            <input type="text" id="lastname" name="lastname" placeholder="Last Name Unset">
+                        {{ end }}
+                        {{ if .lastNameErr }}
+                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .lastNameErr }}</p>
+                        {{ end }}
+                    </div>
                 </div>
-                <div class="form-email">
-                    <label for="email">Email</label>
-                    {{ if .email }}
-                        <input type="text" id="email" name="email" value="{{.email}}" required>
+                <div class="form-address">
+                    <label for="address">Address</label>
+                    {{  if .address }}
+                        <input type="text" id="address" name="address" value="{{.address}}">
                     {{ else }}
-                        <input type="text" id="email" name="email" required placeholder="Input Your Email">
+                        <input type="text" id="address" name="address" placeholder="Address Unset">
                     {{ end }}
-                    {{ if .emailErr }}
-                    <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .emailErr }}</p>
+                    {{ if .addressErr }}
+                    <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .addressErr }}</p>
                     {{ end }}
                 </div>
-                <div class="form-password">
-                    <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Input New Password">
-                        {{ if .password1Err }}
-                            <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .password1Err }}</p>
-                        {{ end }}
+                <div class="form-picture">
+                    <label for="picture">Profile Picture</label>
+                    <input type="file" id="picture" name="picture">
+                    {{ if .fileErr }}
+                    <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .fieErr }}</p>
+                    {{ end }}
                 </div>
-                <div class="form-password">
-                    <label for="password-confirmation">Password Confirmation</label>
-                        <input type="password" id="password-confirmation" name="password-confirmation" placeholder="Input New Password Confirmation">
-                        {{ if .password2Err }}
-                            <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .password2Err }}</p>
-                        {{ end }}
+                <div class="command-button">
+                    <a href="../administrator-page">Back</a>
+                    <button type="submit">Save Changes</button>
                 </div>
-                
-                <button type="submit">Save Changes</button>
                 </form>
             </div>
         </div>
