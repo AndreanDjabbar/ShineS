@@ -1159,7 +1159,7 @@ func ViewAdminHandler(c *gin.Context) {
 	)
 }
 
-func ViewDetailUserHandler(c *gin.Context) {
+func ViewDetailPersonalHandler(c *gin.Context) {
 	role := GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
@@ -1192,32 +1192,158 @@ func ViewDetailUserHandler(c *gin.Context) {
 		)
 		return
 	}
-	credential := models.User{}
-	err = models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&credential).Error
-	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/administrator-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
-		return
-	
-	}
 	context	:= gin.H {
-		"title":"Detail User",
-		"profile":profile,
-		"credential":credential,
+		"title":"Detail User Information",
+		"firstName":profile.FirstName,
+		"lastName":profile.LastName,
+		"address":profile.Address,
+		"image":profile.Image,
 		"isSeller":IsSeller(c),
 		"isAdmin":IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
-		"detailUser.html",
+		"detailPersonal.html",
 		context,
 	)
+}
+
+func DetailPersonalHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	if role != "Admin" {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/home-page",
+		)
+		return
+	}
+	profile := models.Profile{}
+	strUserId := c.Param("userId")
+	UserId, _ := strconv.Atoi(strUserId)
+	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", UserId).First(&profile)
+	var firstName, lastName, address string
+	var firstNameErr, lastNameErr, addressErr, fileErr string
+
+	firstName = c.PostForm("firstname")
+	lastName = c.PostForm("lastname")
+	address = c.PostForm("address")
+
+	if len(firstName) < 2  && len(firstName) != 0 {
+		firstNameErr = "Minimum First Name is 2 Character!"
+	}
+	if len(lastName) < 3 && len(lastName) != 0 {
+		lastNameErr = "Minimum Last Name is 3 Characters!"
+	}
+
+	if len(address) < 5 && len(address) != 0 {
+		addressErr = "Minimum Address is 5 Characters!"
+	}
+
+	file, err := c.FormFile("picture")
+	if file == nil {
+		if firstNameErr == "" && lastNameErr == ""  && addressErr == "" {
+			profile := models.Profile {
+				UserID: uint(UserId),
+				FirstName: firstName,
+				LastName: lastName,
+				Address: address,
+			}
+			err := models.DB.Model(&models.Profile{}).Where("user_id = ?", UserId).Updates(&profile).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/personal-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/administrator-page",
+			)
+			return
+		}
+		context := gin.H {
+			"title":"Detail User Information",
+			"firstName":profile.FirstName,
+			"lastName":profile.LastName,
+			"address":profile.Address,
+			"firstNameErr":firstNameErr,
+			"lastNameErr":lastNameErr,
+			"image":profile.Image,
+			"addressErr":addressErr,
+		}
+		c.HTML(
+			http.StatusOK,
+			"detailPersonal.html",
+			context,
+		)
+	} else {
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+		err = c.SaveUploadedFile(file, "views/images/"+file.Filename)
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+		if firstNameErr == "" && lastNameErr == ""  && addressErr == "" && fileErr == "" {
+			profile := models.Profile {
+				UserID: uint(UserId),
+				FirstName: firstName,
+				LastName: lastName,
+				Address: address,
+				Image: file.Filename,
+			}
+			err := models.DB.Model(&models.Profile{}).Where("user_id = ?", UserId).Updates(&profile).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/personal-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			c.Redirect(
+				http.StatusFound,
+				"/shines/main/administrator-page",
+			)
+			return
+		}
+		context := gin.H {
+			"title":"Detail User Information",
+			"firstName":profile.FirstName,
+			"lastName":profile.LastName,
+			"address":profile.Address,
+			"image":profile.Image,
+			"firstNameErr":firstNameErr,
+			"lastNameErr":lastNameErr,
+			"addressErr":addressErr,
+			"fileErr":fileErr,
+			"isSeller":IsSeller(c),
+			"isAdmin":IsAdmin(c),
+		}
+		c.HTML(
+			http.StatusOK,
+			"detailPersonal.html",
+			context,
+		)
+	}
 }
