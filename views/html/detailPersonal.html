@@ -44,7 +44,7 @@
                             <p>Personal Information</p>
                         </div>
                     </a></li>
-                    <li><a href="/shines/main/credential-information-page/">
+                    <li><a href="/shines/main/detail-credential-page/{{.userID}}">
                         <div class="link-credential">
                             <i data-feather="key"></i>
                             <p>Credentials</p>
@@ -104,10 +104,16 @@
                     <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .fieErr }}</p>
                     {{ end }}
                 </div>
-                <div class="command-button">
-                    <a href="../administrator-page">Back</a>
-                    <button type="submit">Save Changes</button>
-                </div>
+                {{if .isAdminTarget}}
+                    <div class="command-button">
+                        <a href="../administrator-page">Back</a>
+                    </div>
+                {{else}}
+                    <div class="command-button">
+                        <a href="../administrator-page">Back</a>
+                        <button type="submit">Save Changes</button>
+                    </div>
+                {{end}}
                 </form>
             </div>
         </div>
