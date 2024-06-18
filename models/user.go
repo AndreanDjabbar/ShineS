@@ -1,11 +1,11 @@
 package models
 
-type userRole string
+type UserRole string
 
 const (
-	Admin userRole = "admin"
-	Seller userRole = "seller"
-	Customer userRole = "customer"
+	Admin UserRole = "admin"
+	Seller UserRole = "seller"
+	Customer UserRole = "customer"
 )
 
 type User struct {
@@ -14,7 +14,7 @@ type User struct {
     Email    string   `gorm:"not null;size:100"`
     Phone    string   `gorm:"unique"`
     Password string   `gorm:"unique;not null"`
-    Role     userRole `gorm:"type:ENUM('Admin', 'Seller', 'Customer');not null"`
+    Role     UserRole `gorm:"type:ENUM('Admin', 'Seller', 'Customer');not null"`
 }
 
 type Profile struct {
