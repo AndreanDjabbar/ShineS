@@ -1403,6 +1403,7 @@ func ViewDetailCredentialHandler(c *gin.Context) {
 		)
 		return
 	}
+	fmt.Println(IsAdminTarget(c, userId))
 	context := gin.H {
 		"title":"Detail Credential Information",
 		"username":user.Username,
@@ -1578,4 +1579,247 @@ func DetailCredentialHandler(c *gin.Context) {
 		"detailCredential.html",
 		context,
 	)
+}
+
+func ViewDetailShopHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	if role != "Admin" {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/home-page",
+		)
+		return
+	}
+	strUserId := c.Param("userId")
+	userId , _ := strconv.Atoi(strUserId)
+	profile := models.Profile{}
+	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/administrator-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	shop := models.Shop{}
+	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", userId).First(&shop).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/administrator-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	context := gin.H {
+		"title":"Detail Shop Information",
+		"image":profile.Image,
+		"shopName":shop.ShopName,
+		"address":shop.ShopAddress,
+		"description":shop.ShopDescription,
+		"shopImage":shop.ShopImage,
+		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
+		"isAdminTarget":IsAdminTarget(c, userId),
+		"userID":userId,
+	}
+	c.HTML(
+		http.StatusOK,
+		"detailShop.html",
+		context,
+	)
+}
+
+func DetailShopHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	if role != "Admin" {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/home-page",
+		)
+		return
+	}
+	strUserId := c.Param("userId")
+	userId , _ := strconv.Atoi(strUserId)
+	profile := models.Profile{}
+	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/administrator-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	shop := models.Shop{}
+	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", userId).First(&shop).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/administrator-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	var shopName, description, address string
+	var shopNameErr, addressErr, fileErr string
+
+	shopName = c.PostForm("shopName")
+	description = c.PostForm("description")
+	address = c.PostForm("address")
+
+	if len(shopName) < 5 && len(shopName) != 0 {
+		shopNameErr = "Minimum Shop Name is 5 Characters!"
+	}
+
+	if len(address) < 5 && len(address) != 0 {
+		addressErr = "Minimum Shop Address is 5 Characters!"
+	}
+
+	file, err := c.FormFile("photo")
+	if file == nil {
+		if shopNameErr == "" && addressErr == "" {
+			shop := models.Shop {
+				UserID: uint(userId),
+				ShopName: shopName,
+				ShopDescription: description,
+				ShopAddress: address,
+			}
+			err := models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Updates(&shop).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/shop-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			SetRoleTarget(c, userId)
+			targetUrl := fmt.Sprintf("/shines/main/detail-shop-page/%d", userId)
+			c.Redirect(
+				http.StatusFound,
+				targetUrl,
+			)
+			return
+		}
+		context := gin.H {
+			"title":"Shop Information",
+			"image":profile.Image,
+			"shopName":shop.ShopName,
+			"address":shop.ShopAddress,
+			"description":shop.ShopDescription,
+			"shopImage":shop.ShopImage,
+			"addressErr":addressErr,
+			"shopNameErr":shopNameErr,
+			"isAdmin":IsAdmin(c),
+			"userID":userId,
+			"isAdminTarget":IsAdminTarget(c, userId),
+		}
+		c.HTML(
+			http.StatusOK,
+			"detailShop.html",
+			context,
+		)
+	} else {
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+		err = c.SaveUploadedFile(file, "views/images/"+file.Filename)
+		if err != nil {
+			fileErr = "Failed Upload Picture"
+		}
+		if shopNameErr == ""  && addressErr == "" && fileErr == "" {
+			shop = models.Shop {
+				UserID: uint(userId),
+				ShopName: shopName,
+				ShopDescription: description,
+				ShopAddress: address,
+				ShopImage: file.Filename,
+			}
+			err = models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Updates(&shop).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/shop-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			SetRoleTarget(c, userId)
+			targetUrl := fmt.Sprintf("/shines/main/detail-shop-page/%d", userId)
+			c.Redirect(
+				http.StatusFound,
+				targetUrl,
+			)
+			return
+		}
+		context := gin.H {
+			"title":"Shop Information",
+			"shopName":shop.ShopName,
+			"address":shop.ShopAddress,
+			"shopImage":shop.ShopImage,
+			"image":profile.Image,
+			"shopNameErr":shopNameErr,
+			"addressErr":addressErr,
+			"fileErr":fileErr,
+			"isAdmin":IsAdmin(c),
+			"userID":userId,
+			"isAdminTarget":IsAdminTarget(c, userId),
+		}
+		c.HTML(
+			http.StatusOK,
+			"detailShop.html",
+			context,
+		)
+	}
 }

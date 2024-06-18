@@ -165,6 +165,32 @@ func SetRole(c *gin.Context) {
 	}
 }
 
+func SetRoleTarget(c *gin.Context, userId int) {
+	user := models.User{}
+	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
+	currentRole := GetRole(c)
+	if currentRole == "Customer" {
+		user.Role = "Seller"
+		err := models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&user).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/shop-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			return
+	} else {
+		return
+	}
+}
+
 func GetShopId(c *gin.Context) int {
 	userId := GetuserId(c)
 	var shopId int
