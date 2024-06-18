@@ -116,6 +116,20 @@ func CreateShop(c *gin.Context) {
 	}
 }
 
+func GetRoleTarget(c *gin.Context, userId int) string {
+	user := models.User{}
+	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
+	return string(user.Role)
+}
+
+func IsAdminTarget(c *gin.Context, userId int) bool {
+	role := GetRoleTarget(c, userId)
+	if role == "Admin" {
+		return true
+	}
+	return false
+}
+
 func GetRole(c *gin.Context) string {
 	userId := GetuserId(c)
 	user := models.User{}

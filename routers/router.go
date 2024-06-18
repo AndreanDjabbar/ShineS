@@ -34,5 +34,7 @@ func MainRouter(c *gin.RouterGroup) {
 		main.GET("administrator-page/", controllers.ViewAdminHandler)
 		main.GET("detail-personal-page/:userId", controllers.ViewDetailPersonalHandler)
 		main.POST("detail-personal-page/:userId", controllers.DetailPersonalHandler)
+		main.GET("detail-credential-page/:userId", controllers.ViewDetailCredentialHandler)
+		main.POST("detail-credential-page/:userId", controllers.DetailCredentialHandler)
 	}
 }

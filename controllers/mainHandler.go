@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
@@ -1176,7 +1177,8 @@ func ViewDetailPersonalHandler(c *gin.Context) {
 		)
 		return
 	}
-	userId := c.Param("userId")
+	strUserId := c.Param("userId")
+	userId , _ := strconv.Atoi(strUserId)
 	profile := models.Profile{}
 	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
 	if err != nil {
@@ -1198,8 +1200,10 @@ func ViewDetailPersonalHandler(c *gin.Context) {
 		"lastName":profile.LastName,
 		"address":profile.Address,
 		"image":profile.Image,
+		"userID":userId,
 		"isSeller":IsSeller(c),
 		"isAdmin":IsAdmin(c),
+		"isAdminTarget":IsAdminTarget(c, int(userId)),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1282,6 +1286,7 @@ func DetailPersonalHandler(c *gin.Context) {
 			"lastName":profile.LastName,
 			"address":profile.Address,
 			"firstNameErr":firstNameErr,
+			"userID":UserId,
 			"lastNameErr":lastNameErr,
 			"image":profile.Image,
 			"addressErr":addressErr,
@@ -1339,6 +1344,7 @@ func DetailPersonalHandler(c *gin.Context) {
 			"fileErr":fileErr,
 			"isSeller":IsSeller(c),
 			"isAdmin":IsAdmin(c),
+			"isAdminTarget":IsAdminTarget(c, int(UserId)),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -1346,4 +1352,230 @@ func DetailPersonalHandler(c *gin.Context) {
 			context,
 		)
 	}
+}
+
+func ViewDetailCredentialHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	if role != "Admin" {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/home-page",
+		)
+		return
+	}
+	strUserId := c.Param("userId")
+	userId , _ := strconv.Atoi(strUserId)
+	user := models.User{}
+	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/administrator-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	profile := models.Profile{}
+	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/administrator-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	context := gin.H {
+		"title":"Detail Credential Information",
+		"username":user.Username,
+		"email":user.Email,
+		"image":profile.Image,
+		"firstName":profile.FirstName,
+		"lastName":profile.LastName,
+		"address":profile.Address,
+		"isSeller":IsSeller(c),
+		"role":user.Role,
+		"userID":userId,
+		"isAdmin":IsAdmin(c),
+		"isAdminTarget":IsAdminTarget(c, userId),
+	}
+	c.HTML(
+		http.StatusOK,
+		"detailCredential.html",
+		context,
+	)
+}
+
+func DetailCredentialHandler(c *gin.Context) {
+	role := GetRole(c)
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	if role != "Admin" {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/home-page",
+		)
+		return
+	}
+	strUserID := c.Param("userId")
+	userId, _ := strconv.Atoi(strUserID)
+
+	user := models.User{}
+	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/credential-information-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	profile := models.Profile{}
+	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/credential-information-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	var username, email, password1, password2 string
+	var usernameErr, emailErr, password1Err, password2Err string
+
+	username = c.PostForm("username")
+	email = c.PostForm("email")
+	roleTarget := c.PostForm("role")
+	password1 = c.PostForm("password")
+	password2 = c.PostForm("password-confirmation")
+
+	if len(username) < 5 {
+		usernameErr = "Minimum Username is 5 Characters!"
+	}
+	if len(email) < 5 {
+		emailErr = "Minimum Email is 5 Characters!"
+	}
+	if password1 != "" && len(password1) < 5 {
+		password1Err = "Minimum Password is 5 Characters!"
+	}
+
+	if password1 != password2 {
+		password2Err = "Password Confirmation is not match!"
+	}
+
+	if usernameErr == "" && emailErr == "" && password1Err == "" && password2Err == "" {
+		if password1 == "" {
+			newUser := models.User {
+				Username: username,
+				Email: email,
+				Role: models.UserRole(roleTarget),
+			}
+			err = models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&newUser).Error
+			if err != nil {
+				context := gin.H{
+					"title":   "Error",
+					"message": "Failed to Update Data",
+					"source":  "/shines/main/credential-information-page",
+				}
+				c.HTML(
+					http.StatusInternalServerError,
+					"error.html",
+					context,
+				)
+				return
+			}
+			targetUrl := fmt.Sprintf("/shines/main/detail-credential-page/%d", userId)
+			c.Redirect(
+				http.StatusFound,
+				targetUrl,
+			)
+			return
+		}
+		newHashedPassword, err := bcrypt.GenerateFromPassword(
+			[]byte(password1),
+			bcrypt.DefaultCost,
+		)
+		if err != nil {
+			panic(err)
+		}
+		newUser := models.User {
+			Username: username,
+			Email: email,
+			Role: models.UserRole(roleTarget),
+			Password: string(newHashedPassword),
+		}
+		err = models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&newUser).Error
+		if err != nil {
+			context := gin.H{
+				"title":   "Error",
+				"message": "Failed to Update Data",
+				"source":  "/shines/main/credential-information-page",
+			}
+			c.HTML(
+				http.StatusInternalServerError,
+				"error.html",
+				context,
+			)
+			return
+		}
+		targetUrl := fmt.Sprintf("/shines/main/detail-credential-page/%d", userId)
+		c.Redirect(
+			http.StatusFound,
+			targetUrl,
+		)
+		return
+	}
+	context := gin.H {
+		"title":"Credential Information",
+		"username":middlewares.GetSession(c),
+		"email":user.Email,
+		"image":profile.Image,
+		"password":user.Password,
+		"usernameErr":usernameErr,
+		"emailErr":emailErr,
+		"password1Err":password1Err,
+		"password2Err":password2Err,
+		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
+		"isAdminTarget":IsAdminTarget(c, userId),
+	}
+	c.HTML(
+		http.StatusOK,
+		"detailCredential.html",
+		context,
+	)
 }
