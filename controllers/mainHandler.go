@@ -1839,3 +1839,64 @@ func DetailShopHandler(c *gin.Context) {
 		)
 	}
 }
+
+func ViewDetailProductHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	productId := c.Param("productId")
+	product := models.Product{}
+	err := models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/home-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	shopId := product.ShopId
+	shop := models.Shop{}
+	err = models.DB.Model(&models.Shop{}).Select("*").Where("seller_id = ?", shopId).First(&shop).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/home-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	context := gin.H {
+		"title":"Detail Product",
+		"productName":product.ProductName,
+		"description":product.ProductDescription,
+		"category":product.ProductCategory,
+		"price":product.ProductPrice,
+		"productImage":product.ProductImage,
+		"stock":product.ProductStock,
+		"shopId":shopId,
+		"shopName":shop.ShopName,
+		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
+	}
+	c.HTML(
+		http.StatusOK,
+		"detailProduct.html",
+		context,
+	)
+}
