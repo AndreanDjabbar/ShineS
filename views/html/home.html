@@ -3,18 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShineS</title>
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body>
-    
-    <div>
-        <h1>Welcome to ShineS..{{.user}}</h1>
+    <nav>
+        <div class="nav-left">
+            <a href="" id="nav-title">ShineS</a>
+        </div>
+        <div class="nav-right">
+            <ul class="nav-right1">
+                <li><a href="/shines/main/home-page">Home</a></li>
+                <li><a href="">Category</a></li>
+                {{ if .isSeller }}
+                    <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
+                {{ end }}
+                {{ if .isAdmin }}
+                <li><a href="/shines/main/administrator-page/">Administration</a></li>
+                {{ end }}
+            </ul>
+            <ul class="nav-right2">
+                <li><a href="">Cart</a></li>
+                <li><a href="../personal-information-page/">Profile</a></li>
+                <li><a href="../logout-page">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="content">
+        <div class="content-first">
+            <div class="content-first-nav">
+                <a href="" id="content-first-title">All Products</a>
+            </div>
+            {{ if .products }}
+            <div class="content-second">
+                {{ range .products }}
+                    <div class="product">
+                        <img src="/images/{{.ProductImage}}" alt="" srcset="">
+                        <div class="product-info">
+                            <p>{{.ProductName}}</p>
+                            <p>Price: {{.ProductPrice}}</p>
+                            <p>Stock: {{.ProductStock}} pcs</p>
+                        </div>
+                        <div class="product-detailbtn">
+                            <a href="/shines/main/update-product-page/{{.ProductId}}">Details</a>
+                        </div>
+                    </div>
+                    <br><br>
+                {{ end }}
+            </div>
+        {{ else }}
+            <div class="content-second">
+                <p>No products available</p>
+            </div>
+        {{end}}
+        </div>
     </div>
-    <br>
-    <a href="/shines/main/logout-page">Logout</a>
-    <a href="/shines/main/personal-information-page">Personal Information</a>
-    {{ if .isSeller }}
-        <a href="/shines/main/create-product-page/">Create Product</a>
-    {{end}}
+    <script>
+        feather.replace();
+    </script>
 </body>
 </html>

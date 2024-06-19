@@ -27,7 +27,6 @@ func RootHandler(c *gin.Context) {
 }
 
 func ViewHomeHandler(c *gin.Context) {
-	user := middlewares.GetSession(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -36,11 +35,28 @@ func ViewHomeHandler(c *gin.Context) {
 		)
 		return
 	}
+	products := []models.Product{}
+	err := models.DB.Model(&models.Product{}).Select("*").Find(&products).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/home-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
 	context := gin.H {
 		"title":"Home",
-		"user":user,
+		"products":products,
 		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
 	}
+	fmt.Println(products)
 	c.HTML(
 		http.StatusOK,
 		"home.html",
