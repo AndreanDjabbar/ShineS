@@ -20,3 +20,14 @@ type Cart struct {
     Product      Product   `gorm:"foreignKey:ProductID;constraint:OnDelete:CASCADE;"`
 	Quantity uint `gorm:"not null"`
 }
+
+type TransactionDetail struct {
+	CartID      uint
+	UserID      uint
+	Username    string
+	Email       string
+	ProductID   uint
+	ProductName string
+	Price       float64
+	Quantity    int
+}
