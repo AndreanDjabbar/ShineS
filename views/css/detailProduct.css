@@ -116,7 +116,8 @@ form .form-photo,
 form .form-category,
 form .form-store,
 form .form-amount .price,
-form .form-amount .stock {
+form .form-amount .stock,
+form .form-quantity {
     display: flex;
     flex-direction: column;
 }
@@ -127,7 +128,8 @@ form .form-photo label,
 form .form-category label,
 form .form-store label,
 form .form-amount .form-price label, 
-form .form-amount .form-stock label {
+form .form-amount .form-stock label,
+form .form-quantity label{
     font-family: Inter;
     font-size: 20px;
     font-weight: 400;
@@ -167,6 +169,17 @@ form .form-amount .form-stock label {
     height: 41px;
     display: flex;
     align-items: center;
+    font-size: 15px;
+    border: 1px solid rgba(168, 168, 168, 1);
+    padding-left: 10px;
+    border-radius: 10px;
+    background: rgba(238, 238, 238, 1);
+    color: black;
+}
+
+.form-quantity select {
+    width: 1215px;
+    height: 41px;
     font-size: 15px;
     border: 1px solid rgba(168, 168, 168, 1);
     padding-left: 10px;
