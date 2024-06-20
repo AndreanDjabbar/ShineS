@@ -40,5 +40,6 @@ func MainRouter(c *gin.RouterGroup) {
 		main.POST("detail-shop-page/:userId", controllers.DetailShopHandler)
 		main.GET("detail-product-page/:productId", controllers.ViewDetailProductHandler)
 		main.POST("detail-product-page/:productId", controllers.DetailProductHandler)
+		main.GET("cart-page/", controllers.ViewCartHandler)
 	}
 }

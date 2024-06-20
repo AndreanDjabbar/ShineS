@@ -1942,3 +1942,70 @@ func DetailProductHandler(c *gin.Context) {
 		"/shines/main/home-page",
 	)
 }
+
+func ViewCartHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	userId := GetuserId(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	cart := []models.Cart{}
+	err := models.DB.Model(&models.Cart{}).Select("*").Where("user_id = ?", userId).Find(&cart).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/home-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	
+	}
+	totalPrice := 0.0
+	for _, item := range cart {
+		priceProduct := GetPriceProduct(c, int(item.ProductID))
+		totalPrice +=( priceProduct * float64(item.Quantity))
+	}
+
+	transactions := []models.TransactionDetail{}
+	err = models.DB.Table("carts").
+	Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity").
+	Joins("left join users on carts.user_id = users.user_id").
+	Joins("left join products on carts.product_id = products.product_id").
+	Where("carts.user_id = ?", userId).
+	Find(&transactions).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/home-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	
+	}
+	context := gin.H {
+		"title":"Cart",
+		"totalPrice":totalPrice,
+		"isSeller":IsSeller(c),
+		"Transactions":transactions,
+		"isAdmin":IsAdmin(c),
+	}
+	c.HTML(
+		http.StatusOK,
+		"cart.html",
+		context,
+	)
+}

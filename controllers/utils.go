@@ -169,6 +169,12 @@ func GetRoleTarget(c *gin.Context, userId int) string {
 	return string(user.Role)
 }
 
+func GetPriceProduct(c *gin.Context, productId int) float64 {
+	product := models.Product{}
+	models.DB.Model(&models.Product{}).Select("product_price").Where("product_id = ?", productId).First(&product)
+	return product.ProductPrice
+}
+
 func IsAdminTarget(c *gin.Context, userId int) bool {
 	role := GetRoleTarget(c, userId)
 	if role == "Admin" {
