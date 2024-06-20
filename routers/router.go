@@ -39,5 +39,6 @@ func MainRouter(c *gin.RouterGroup) {
 		main.GET("detail-shop-page/:userId", controllers.ViewDetailShopHandler)
 		main.POST("detail-shop-page/:userId", controllers.DetailShopHandler)
 		main.GET("detail-product-page/:productId", controllers.ViewDetailProductHandler)
+		main.POST("detail-product-page/:productId", controllers.DetailProductHandler)
 	}
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
@@ -113,6 +114,52 @@ func CreateShop(c *gin.Context) {
 			)
 			return
 		}	
+	}
+}
+
+func AddToCart(c *gin.Context, productID int, quantity int, stock int) {
+	userId := GetuserId(c)
+	urlSource := fmt.Sprintf("/shines/main/detail-product-page/%d", productID)
+	cart := models.Cart{}
+	err := models.DB.Model(&models.Cart{}).Where("user_id = ? AND product_id = ?", userId, productID).First(&cart).Error
+	if err != nil {
+		cart.UserID = uint(userId)
+		cart.ProductID = uint(productID)
+		cart.Quantity = uint(quantity)
+		err = models.DB.Create(&cart).Error
+		if err != nil {
+			context := gin.H{
+				"title":   "Error",
+				"message": "Failed to Create Data",
+				"source":  urlSource,
+			}
+			c.HTML(
+				http.StatusInternalServerError,
+				"error.html",
+				context,
+			)
+			return
+		}
+	} else {
+		newQuantity := cart.Quantity + uint(quantity)
+		if newQuantity >= 0 {
+			cart.Quantity = uint(stock)
+		}
+		err = models.DB.Save(&cart).Error
+		if err != nil {
+			
+			context := gin.H{
+				"title":   "Error",
+				"message": "Failed to Update Data",
+				"source":  urlSource,
+			}
+			c.HTML(
+				http.StatusInternalServerError,
+				"error.html",
+				context,
+			)
+			return
+		}
 	}
 }
 

@@ -10,6 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func init() {
+	models.ConnectToDatabase()
+}
+
 func main() {
 	router := gin.Default()
 	router.SetFuncMap(template.FuncMap{
@@ -19,8 +23,6 @@ func main() {
 	router.Static("/images", "./views/images")
 	router.Static("/css", "./views/css")
 	router.MaxMultipartMemory = 8 << 20
-	models.ConnectToDatabase()
-
 	shines := router.Group("shines/")
 	routers.MainRouter(shines)
 	router.GET("/", controllers.RootHandler)
