@@ -1881,6 +1881,10 @@ func ViewDetailProductHandler(c *gin.Context) {
 		)
 		return
 	}
+	stockSlice := make([]int, product.ProductStock)
+	for i := 0; i < int(product.ProductStock); i++ {
+			stockSlice[i] = i + 1
+	}
 	context := gin.H {
 		"title":"Detail Product",
 		"productName":product.ProductName,
@@ -1891,6 +1895,7 @@ func ViewDetailProductHandler(c *gin.Context) {
 		"stock":product.ProductStock,
 		"shopId":shopId,
 		"shopName":shop.ShopName,
+		"quantityOrder":stockSlice,
 		"isSeller":IsSeller(c),
 		"isAdmin":IsAdmin(c),
 	}
@@ -1898,5 +1903,42 @@ func ViewDetailProductHandler(c *gin.Context) {
 		http.StatusOK,
 		"detailProduct.html",
 		context,
+	)
+}
+
+func DetailProductHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	strProductId := c.Param("productId")
+	productId, _ := strconv.Atoi(strProductId)
+	strOrderQuantity := c.PostForm("quantity")
+	orderQuantity, _ := strconv.Atoi(strOrderQuantity)
+
+	product := models.Product{}
+	err := models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/home-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+
+	AddToCart(c, productId, orderQuantity, int(product.ProductStock))
+	c.Redirect(
+		http.StatusFound,
+		"/shines/main/home-page",
 	)
 }
