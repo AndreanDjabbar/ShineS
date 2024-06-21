@@ -2148,3 +2148,21 @@ func UpdateCartHandler(c *gin.Context) {
 		"/shines/main/cart-page",
 	)
 }
+
+func DeleteCartHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	strCartId := c.Param("cartId")
+	cartId, _ := strconv.Atoi(strCartId)
+	DeleteCart(c, cartId)
+	c.Redirect(
+		http.StatusFound,
+		"/shines/main/cart-page",
+	)
+}
