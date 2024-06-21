@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const userKey = "secret"
+const userKey = "Secret"
 
 func AuthSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
