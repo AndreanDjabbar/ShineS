@@ -211,3 +211,19 @@ nav #nav-title {
     font-weight: 600;
     font-family: inter;
 }
+
+.checkout {
+    display: flex;
+    gap: 30px;
+    margin-top: 100px;
+}
+
+.checkout a {
+    color: white;
+    font-size: 30px;
+    padding: 15px;
+    border-radius: 15px;
+    font-family: inter;
+    font-weight: 700;
+    background-color: #198754;
+}

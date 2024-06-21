@@ -84,8 +84,8 @@
                     <label for="quantity">Order Quantity</label>
                     <select name="quantity" id="quantity">
                         {{range .quantityOrder}}
-                        <option value="{{.}}" {{if eq . $.quantity}}selected{{end}}>{{.}}</option>
-                    {{end}}
+                            <option value="{{.}}" {{if eq . $.quantity}}selected{{end}}>{{.}}</option>
+                        {{end}}
                     </select>
                 </div>
                 <div class="command-button">

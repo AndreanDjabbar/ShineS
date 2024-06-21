@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.title}}</title>
-    <link rel="stylesheet" href="/css/sellerCatalog.css">
+    <link rel="stylesheet" href="/css/home.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -27,7 +27,7 @@
                 {{ end }}
             </ul>
             <ul class="nav-right2">
-                <li><a href="">Cart</a></li>
+                <li><a href="../cart-page/">Cart</a></li>
                 <li><a href="../personal-information-page/">Profile</a></li>
                 <li><a href="../logout-page">Logout</a></li>
             </ul>
@@ -50,9 +50,9 @@
                             <p>Stock: {{.ProductStock}} pcs</p>
                         </div>
                         <div class="product-detailbtn">
-                            <a href="/shines/main/update-product-page/{{.ProductId}}">Details</a>
+                            <a href="/shines/main/detail-product-page/{{.ProductId}}">Details</a>
                         </div>
-                        </div>
+                    </div>
                     <br><br>
                 {{ end }}
             </div>
