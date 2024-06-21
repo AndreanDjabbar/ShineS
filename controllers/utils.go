@@ -142,7 +142,7 @@ func AddToCart(c *gin.Context, productID int, quantity int, stock int) {
 		}
 	} else {
 		newQuantity := cart.Quantity + uint(quantity)
-		if newQuantity >= 0 {
+		if newQuantity >= uint(stock) {
 			cart.Quantity = uint(stock)
 		}
 		err = models.DB.Save(&cart).Error
@@ -161,6 +161,47 @@ func AddToCart(c *gin.Context, productID int, quantity int, stock int) {
 			return
 		}
 	}
+}
+
+func UpdateCart(c *gin.Context, cartID, quantity,stock int) {
+	userId := GetuserId(c)
+	urlSource := fmt.Sprintf("/shines/main/update-cart-page/%d", cartID)
+	cart := models.Cart{}
+	err := models.DB.Model(&models.Cart{}).Where("user_id = ? AND cart_id = ?", userId, cartID).First(&cart).Error
+	if err != nil {
+		context := gin.H{
+			"title":   "Error",
+			"message": "Failed to Get Data",
+			"source":  urlSource,
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	newQuantity := uint(quantity)
+	fmt.Println(newQuantity)
+		if newQuantity >= uint(stock) {
+			cart.Quantity = uint(stock)
+		} else {
+			cart.Quantity = newQuantity
+		}
+		err = models.DB.Save(&cart).Error
+		if err != nil {	
+			context := gin.H{
+				"title":   "Error",
+				"message": "Failed to Update Data",
+				"source":  urlSource,
+			}
+			c.HTML(
+				http.StatusInternalServerError,
+				"error.html",
+				context,
+			)
+			return
+		}
 }
 
 func GetRoleTarget(c *gin.Context, userId int) string {

@@ -2009,3 +2009,142 @@ func ViewCartHandler(c *gin.Context) {
 		context,
 	)
 }
+
+func ViewUpdateCartHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	strCartId := c.Param("cartId")
+	cartId, _ := strconv.Atoi(strCartId)
+	cart := models.Cart{}
+	err := models.DB.Model(&models.Cart{}).Select("*").Where("cart_id = ?", cartId).First(&cart).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	productId := int(cart.ProductID)
+	product := models.Product{}
+	err = models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	stockSlice := make([]int, product.ProductStock)
+	for i := 0; i < int(product.ProductStock); i++ {
+		stockSlice[i] = i + 1
+	}
+	productId = int(cart.ProductID)
+	shop := models.Shop{}
+	err = models.DB.Model(&models.Shop{}).Select("*").Where("seller_id = ?", product.ShopId).First(&shop).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	
+	}
+	context := gin.H {
+		"title":"Update Cart",
+		"productName":product.ProductName,
+		"description":product.ProductDescription,
+		"category":product.ProductCategory,
+		"price":product.ProductPrice,
+		"shopName":shop.ShopName,
+		"productPrice":product.ProductPrice,
+		"productImage":product.ProductImage,
+		"quantity":cart.Quantity,
+		"stock":product.ProductStock,
+		"cartId":cartId,
+		"quantityOrder":stockSlice,
+		"isSeller":IsSeller(c),
+		"isAdmin":IsAdmin(c),
+	}
+	c.HTML(
+		http.StatusOK,
+		"updateCart.html",
+		context,
+	)
+}
+
+func UpdateCartHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	strCartId := c.Param("cartId")
+	cartId, _ := strconv.Atoi(strCartId)
+	strOrderQuantity := c.PostForm("quantity")
+	orderQuantity, _ := strconv.Atoi(strOrderQuantity)
+	cart := models.Cart{}
+	err := models.DB.Model(&models.Cart{}).Select("*").Where("cart_id = ?", cartId).First(&cart).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	productId := int(cart.ProductID)
+	product := models.Product{}
+	err = models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	fmt.Println(orderQuantity)
+	stock := int(product.ProductStock)
+	UpdateCart(c, cartId, orderQuantity, stock)
+	c.Redirect(
+		http.StatusFound,
+		"/shines/main/cart-page",
+	)
+}
