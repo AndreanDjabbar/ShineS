@@ -85,16 +85,8 @@ func RegisterHandler(c *gin.Context) {
 		}		
 		err = models.DB.Create(&user).Error
 		if err != nil {
-			context := gin.H{
-				"title":   "Error Create",
-				"message": "Failed to Create Data",
-				"source":  "/shines/main/register-page",
-			}
-			c.HTML(
-				http.StatusOK,
-				"error.html",
-				context,
-			)
+
+			ErrorHandler2("Error Create", "Failed to Create Data", "Failed to Create Data", c)
 			return
 		}
 		c.Redirect(

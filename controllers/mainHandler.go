@@ -39,27 +39,19 @@ func ViewHomeHandler(c *gin.Context) {
 	userID := GetuserId(c)
 	products := []models.Product{}
 	err := models.DB.Model(&models.Product{}).
-    Select("*").
-    Where("Shop_id != ? AND product_stock != ?", userID, 0).
-    Find(&products).Error
+		Select("*").
+		Where("Shop_id != ? AND product_stock != ?", userID, 0).
+		Find(&products).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/home-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
 	}
-	context := gin.H {
-		"title":"Home",
-		"products":products,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":    "Home",
+		"products": products,
+		"isSeller": IsSeller(c),
+		"isAdmin":  IsAdmin(c),
 	}
 	fmt.Println(products)
 	c.HTML(
@@ -81,14 +73,14 @@ func ViewPersonalHandler(c *gin.Context) {
 	profile := models.Profile{}
 	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile)
 
-	context := gin.H {
-		"title":"Personal Information",
-		"image":profile.Image,
-		"firstName":profile.FirstName,
-		"lastName":profile.LastName,
-		"address":profile.Address,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":     "Personal Information",
+		"image":     profile.Image,
+		"firstName": profile.FirstName,
+		"lastName":  profile.LastName,
+		"address":   profile.Address,
+		"isSeller":  IsSeller(c),
+		"isAdmin":   IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -98,8 +90,8 @@ func ViewPersonalHandler(c *gin.Context) {
 }
 
 func PersonalHandler(c *gin.Context) {
-	profile := models.Profile{}
 	userId := GetuserId(c)
+	profile := models.Profile{}
 	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile)
 	var firstName, lastName, address string
 	var firstNameErr, lastNameErr, addressErr, fileErr string
@@ -121,25 +113,17 @@ func PersonalHandler(c *gin.Context) {
 
 	file, err := c.FormFile("picture")
 	if file == nil {
-		if firstNameErr == "" && lastNameErr == ""  && addressErr == "" {
-			profile := models.Profile {
-				UserID: uint(userId),
+		if firstNameErr == "" && lastNameErr == "" && addressErr == "" {
+			profile := models.Profile{
+				UserID:    uint(userId),
 				FirstName: firstName,
-				LastName: lastName,
-				Address: address,
+				LastName:  lastName,
+				Address:   address,
 			}
 			err := models.DB.Model(&models.Profile{}).Where("user_id = ?", userId).Updates(&profile).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/personal-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/personal-information-page", c)
 				return
 			}
 			c.Redirect(
@@ -148,15 +132,15 @@ func PersonalHandler(c *gin.Context) {
 			)
 			return
 		}
-		context := gin.H {
-			"title":"Personal Information",
-			"firstName":profile.FirstName,
-			"lastName":profile.LastName,
-			"address":profile.Address,
-			"firstNameErr":firstNameErr,
-			"lastNameErr":lastNameErr,
-			"image":profile.Image,
-			"addressErr":addressErr,
+		context := gin.H{
+			"title":        "Personal Information",
+			"firstName":    profile.FirstName,
+			"lastName":     profile.LastName,
+			"address":      profile.Address,
+			"firstNameErr": firstNameErr,
+			"lastNameErr":  lastNameErr,
+			"image":        profile.Image,
+			"addressErr":   addressErr,
 		}
 		c.HTML(
 			http.StatusOK,
@@ -171,26 +155,18 @@ func PersonalHandler(c *gin.Context) {
 		if err != nil {
 			fileErr = "Failed Upload Picture"
 		}
-		if firstNameErr == "" && lastNameErr == ""  && addressErr == "" && fileErr == "" {
-			profile := models.Profile {
-				UserID: uint(userId),
+		if firstNameErr == "" && lastNameErr == "" && addressErr == "" && fileErr == "" {
+			profile := models.Profile{
+				UserID:    uint(userId),
 				FirstName: firstName,
-				LastName: lastName,
-				Address: address,
-				Image: file.Filename,
+				LastName:  lastName,
+				Address:   address,
+				Image:     file.Filename,
 			}
 			err := models.DB.Model(&models.Profile{}).Where("user_id = ?", userId).Updates(&profile).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/personal-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/personal-information-page", c)
 				return
 			}
 			c.Redirect(
@@ -199,18 +175,18 @@ func PersonalHandler(c *gin.Context) {
 			)
 			return
 		}
-		context := gin.H {
-			"title":"Personal Information",
-			"firstName":profile.FirstName,
-			"lastName":profile.LastName,
-			"address":profile.Address,
-			"image":profile.Image,
-			"firstNameErr":firstNameErr,
-			"lastNameErr":lastNameErr,
-			"addressErr":addressErr,
-			"fileErr":fileErr,
-			"isSeller":IsSeller(c),
-			"isAdmin":IsAdmin(c),
+		context := gin.H{
+			"title":        "Personal Information",
+			"firstName":    profile.FirstName,
+			"lastName":     profile.LastName,
+			"address":      profile.Address,
+			"image":        profile.Image,
+			"firstNameErr": firstNameErr,
+			"lastNameErr":  lastNameErr,
+			"addressErr":   addressErr,
+			"fileErr":      fileErr,
+			"isSeller":     IsSeller(c),
+			"isAdmin":      IsAdmin(c),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -233,29 +209,21 @@ func ViewCredentialHandler(c *gin.Context) {
 	profile := models.Profile{}
 	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/credential-information-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/credential-information-page", c)
 		return
 	}
 	username := middlewares.GetSession(c)
-	context := gin.H {
-		"title":"Credential Information",
-		"username":username,
-		"image":profile.Image,
-		"firstName":profile.FirstName,
-		"lastName":profile.LastName,
-		"address":profile.Address,
-		"email":email,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":     "Credential Information",
+		"username":  username,
+		"image":     profile.Image,
+		"firstName": profile.FirstName,
+		"lastName":  profile.LastName,
+		"address":   profile.Address,
+		"email":     email,
+		"isSeller":  IsSeller(c),
+		"isAdmin":   IsAdmin(c),
 	}
 
 	c.HTML(
@@ -277,31 +245,15 @@ func CredentialHandler(c *gin.Context) {
 	user := models.User{}
 	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&user).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/credential-information-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/credential-information-page", c)
 		return
 	}
 	profile := models.Profile{}
 	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/credential-information-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/credential-information-page", c)
 		return
 	}
 	var username, email, password1, password2 string
@@ -330,22 +282,14 @@ func CredentialHandler(c *gin.Context) {
 
 	if usernameErr == "" && emailErr == "" && password1Err == "" && password2Err == "" {
 		if password1 == "" {
-			newUser := models.User {
+			newUser := models.User{
 				Username: username,
-				Email: email,
+				Email:    email,
 			}
 			err = models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&newUser).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/credential-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/credential-information-page", c)
 				return
 			}
 			middlewares.ClearSession(c)
@@ -362,23 +306,15 @@ func CredentialHandler(c *gin.Context) {
 		if err != nil {
 			panic(err)
 		}
-		newUser := models.User {
+		newUser := models.User{
 			Username: username,
-			Email: email,
+			Email:    email,
 			Password: string(newHashedPassword),
 		}
 		err = models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&newUser).Error
 		if err != nil {
-			context := gin.H{
-				"title":   "Error",
-				"message": "Failed to Update Data",
-				"source":  "/shines/main/credential-information-page",
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
+
+			ErrorHandler1("Failed to Update Data", "/shines/main/credential-information-page", c)
 			return
 		}
 		middlewares.ClearSession(c)
@@ -388,18 +324,18 @@ func CredentialHandler(c *gin.Context) {
 		)
 		return
 	}
-	context := gin.H {
-		"title":"Credential Information",
-		"username":middlewares.GetSession(c),
-		"email":user.Email,
-		"image":profile.Image,
-		"password":user.Password,
-		"usernameErr":usernameErr,
-		"emailErr":emailErr,
-		"password1Err":password1Err,
-		"password2Err":password2Err,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":        "Credential Information",
+		"username":     middlewares.GetSession(c),
+		"email":        user.Email,
+		"image":        profile.Image,
+		"password":     user.Password,
+		"usernameErr":  usernameErr,
+		"emailErr":     emailErr,
+		"password1Err": password1Err,
+		"password2Err": password2Err,
+		"isSeller":     IsSeller(c),
+		"isAdmin":      IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -420,42 +356,26 @@ func ViewShopHandler(c *gin.Context) {
 	profile := models.Profile{}
 	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/shop-information-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/shop-information-page", c)
 		return
 	}
 
 	shop := models.Shop{}
 	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&shop).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/shop-information-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/shop-information-page", c)
 		return
 	}
-	context := gin.H {
-		"title":"Shop Information",
-		"image":profile.Image,
-		"shopName":shop.ShopName,
-		"address":shop.ShopAddress,
-		"description":shop.ShopDescription,
-		"shopImage":shop.ShopImage,
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":       "Shop Information",
+		"image":       profile.Image,
+		"shopName":    shop.ShopName,
+		"address":     shop.ShopAddress,
+		"description": shop.ShopDescription,
+		"shopImage":   shop.ShopImage,
+		"isAdmin":     IsAdmin(c),
 	}
 
 	isSeller := IsSeller(c)
@@ -485,7 +405,6 @@ func ShopHandler(c *gin.Context) {
 	var shopName, description, address string
 	var shopNameErr, descriptionErr, addressErr, fileErr string
 
-
 	shopName = c.PostForm("shopName")
 	description = c.PostForm("description")
 	address = c.PostForm("address")
@@ -500,25 +419,17 @@ func ShopHandler(c *gin.Context) {
 
 	file, err := c.FormFile("photo")
 	if file == nil {
-		if shopNameErr == "" && descriptionErr == ""  && addressErr == "" {
-			shop := models.Shop {
-				UserID: uint(userId),
-				ShopName: shopName,
+		if shopNameErr == "" && descriptionErr == "" && addressErr == "" {
+			shop := models.Shop{
+				UserID:          uint(userId),
+				ShopName:        shopName,
 				ShopDescription: description,
-				ShopAddress: address,
+				ShopAddress:     address,
 			}
 			err := models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Updates(&shop).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/shop-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
 			SetRole(c)
@@ -528,17 +439,17 @@ func ShopHandler(c *gin.Context) {
 			)
 			return
 		}
-		context := gin.H {
-			"title":"Shop Information",
-			"image":profile.Image,
-			"shopName":shop.ShopName,
-			"address":shop.ShopAddress,
-			"description":shop.ShopDescription,
-			"shopImage":shop.ShopImage,
-			"addressErr":addressErr,
-			"shopNameErr":shopNameErr,
-			"descriptionErr":descriptionErr,
-			"isAdmin":IsAdmin(c),
+		context := gin.H{
+			"title":          "Shop Information",
+			"image":          profile.Image,
+			"shopName":       shop.ShopName,
+			"address":        shop.ShopAddress,
+			"description":    shop.ShopDescription,
+			"shopImage":      shop.ShopImage,
+			"addressErr":     addressErr,
+			"shopNameErr":    shopNameErr,
+			"descriptionErr": descriptionErr,
+			"isAdmin":        IsAdmin(c),
 		}
 
 		isSeller := IsSeller(c)
@@ -563,26 +474,18 @@ func ShopHandler(c *gin.Context) {
 		if err != nil {
 			fileErr = "Failed Upload Picture"
 		}
-		if shopNameErr == "" && descriptionErr == ""  && addressErr == "" && fileErr == "" {
-			shop = models.Shop {
-				UserID: uint(userId),
-				ShopName: shopName,
+		if shopNameErr == "" && descriptionErr == "" && addressErr == "" && fileErr == "" {
+			shop = models.Shop{
+				UserID:          uint(userId),
+				ShopName:        shopName,
 				ShopDescription: description,
-				ShopAddress: address,
-				ShopImage: file.Filename,
+				ShopAddress:     address,
+				ShopImage:       file.Filename,
 			}
 			err = models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Updates(&shop).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/shop-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
 			SetRole(c)
@@ -592,17 +495,17 @@ func ShopHandler(c *gin.Context) {
 			)
 			return
 		}
-		context := gin.H {
-			"title":"Shop Information",
-			"shopName":shop.ShopName,
-			"address":shop.ShopAddress,
-			"shopImage":shop.ShopImage,
-			"image":profile.Image,
-			"shopNameErr":shopNameErr,
-			"descriptionErr":descriptionErr,
-			"addressErr":addressErr,
-			"fileErr":fileErr,
-			"isAdmin":IsAdmin(c),
+		context := gin.H{
+			"title":          "Shop Information",
+			"shopName":       shop.ShopName,
+			"address":        shop.ShopAddress,
+			"shopImage":      shop.ShopImage,
+			"image":          profile.Image,
+			"shopNameErr":    shopNameErr,
+			"descriptionErr": descriptionErr,
+			"addressErr":     addressErr,
+			"fileErr":        fileErr,
+			"isAdmin":        IsAdmin(c),
 		}
 
 		isSeller := IsSeller(c)
@@ -640,9 +543,9 @@ func ViewCreateProductHandler(c *gin.Context) {
 		return
 	}
 
-	context := gin.H {
-		"title":"Create Product",
-		"isSeller":IsSeller(c),
+	context := gin.H{
+		"title":    "Create Product",
+		"isSeller": IsSeller(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -668,29 +571,29 @@ func CreateProductHandler(c *gin.Context) {
 	category := c.PostForm("category")
 	priceString := c.PostForm("price")
 	quantityString := c.PostForm("quantity")
-	
+
 	price, err := strconv.Atoi(priceString)
 	if err != nil {
 		priceErr = "Price must be a number!"
 	}
-	
+
 	quantity, err := strconv.Atoi(quantityString)
 	if err != nil {
 		quantityErr = "Quantity must be a number!"
 	}
-	
+
 	if price <= 0 {
 		priceErr = "Price must be greater than 0!"
 	}
-	
+
 	if quantity <= 0 {
 		quantityErr = "Quantity must be greater than 0!"
 	}
-	
+
 	if len(productName) < 3 {
 		productNameErr = "Minimum Product Name is 3 Characters!"
 	}
-	
+
 	if category == "" {
 		categoryErr = "Category must be selected!"
 	}
@@ -699,27 +602,19 @@ func CreateProductHandler(c *gin.Context) {
 	if file == nil {
 		if productNameErr == "" && categoryErr == "" && priceErr == "" && quantityErr == "" {
 			sellerId := GetSellerId(c)
-			product := models.Product {
-				ShopId: uint(sellerId),
-				ProductName: productName,
+			product := models.Product{
+				ShopId:             uint(sellerId),
+				ProductName:        productName,
 				ProductDescription: description,
-				ProductCategory: category,
-				ProductPrice: float64(price),
-				ProductImage: "productDefault.png",
-				ProductStock: uint(quantity),
+				ProductCategory:    category,
+				ProductPrice:       float64(price),
+				ProductImage:       "productDefault.png",
+				ProductStock:       uint(quantity),
 			}
 			err := models.DB.Create(&product).Error
 			if err != nil {
-				context := gin.H {
-					"title":"Error",
-					"message":"Failed to Create Data",
-					"source":"/shines/main/create-product-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Create Data", "/shines/main/create-product-page", c)
 				return
 			}
 			c.Redirect(
@@ -739,27 +634,19 @@ func CreateProductHandler(c *gin.Context) {
 
 		if productNameErr == "" && categoryErr == "" && priceErr == "" && quantityErr == "" && fileErr == "" {
 			sellerId := GetSellerId(c)
-			product := models.Product {
-				ShopId: uint(sellerId),
-				ProductName: productName,
+			product := models.Product{
+				ShopId:             uint(sellerId),
+				ProductName:        productName,
 				ProductDescription: description,
-				ProductCategory: category,
-				ProductPrice: float64(price),
-				ProductStock: uint(quantity),
-				ProductImage: file.Filename,
+				ProductCategory:    category,
+				ProductPrice:       float64(price),
+				ProductStock:       uint(quantity),
+				ProductImage:       file.Filename,
 			}
 			err := models.DB.Create(&product).Error
 			if err != nil {
-				context := gin.H {
-					"title":"Error",
-					"message":"Failed to Create Data",
-					"source":"/shines/main/create-product-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Create Data", "/shines/main/create-product-page", c)
 				return
 			}
 			c.Redirect(
@@ -769,20 +656,20 @@ func CreateProductHandler(c *gin.Context) {
 			return
 		}
 	}
-	context := gin.H {
-		"title":"Create Product",
-		"productNameErr":productNameErr,
-		"categoryErr":categoryErr,
-		"priceErr":priceErr,
-		"quantityErr":quantityErr,
-		"fileErr":fileErr,
-		"productName":productName,
-		"description":description,
-		"category":category,
-		"price":price,
-		"isSeller":IsSeller(c),
-		"quantity":quantity,
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":          "Create Product",
+		"productNameErr": productNameErr,
+		"categoryErr":    categoryErr,
+		"priceErr":       priceErr,
+		"quantityErr":    quantityErr,
+		"fileErr":        fileErr,
+		"productName":    productName,
+		"description":    description,
+		"category":       category,
+		"price":          price,
+		"isSeller":       IsSeller(c),
+		"quantity":       quantity,
+		"isAdmin":        IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -813,29 +700,21 @@ func ViewUpdateProductHandler(c *gin.Context) {
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("Product_id = ?", productId).First(&product).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/home-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
 	}
-	context := gin.H {
-		"title":"Update Product",
-		"productName":product.ProductName,
-		"description":product.ProductDescription,
-		"category":product.ProductCategory,
-		"price":product.ProductPrice,
-		"productImage":product.ProductImage,
-		"quantity":product.ProductStock,
-		"productId":productId,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":        "Update Product",
+		"productName":  product.ProductName,
+		"description":  product.ProductDescription,
+		"category":     product.ProductCategory,
+		"price":        product.ProductPrice,
+		"productImage": product.ProductImage,
+		"quantity":     product.ProductStock,
+		"productId":    productId,
+		"isSeller":     IsSeller(c),
+		"isAdmin":      IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -861,21 +740,13 @@ func UpdateProductHandler(c *gin.Context) {
 	category := c.PostForm("category")
 	priceString := c.PostForm("price")
 	quantityString := c.PostForm("quantity")
-	
+
 	productId := c.Param("productId")
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("Product_id = ?", productId).First(&product).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/home-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
 	}
 
@@ -883,24 +754,24 @@ func UpdateProductHandler(c *gin.Context) {
 	if err != nil {
 		priceErr = "Price must be a number!"
 	}
-	
+
 	quantity, err := strconv.Atoi(quantityString)
 	if err != nil {
 		quantityErr = "Quantity must be a number!"
 	}
-	
+
 	if price <= 0 {
 		priceErr = "Price must be greater than 0!"
 	}
-	
+
 	if quantity <= 0 {
 		quantityErr = "Quantity must be greater than 0!"
 	}
-	
+
 	if len(productName) < 3 {
 		productNameErr = "Minimum Product Name is 3 Characters!"
 	}
-	
+
 	if category == "" {
 		categoryErr = "Category must be selected!"
 	}
@@ -915,16 +786,8 @@ func UpdateProductHandler(c *gin.Context) {
 			product.ProductStock = uint(quantity)
 			err = models.DB.Model(&models.Product{}).Where("Product_id = ?", productId).Updates(&product).Error
 			if err != nil {
-				context := gin.H {
-					"title":"Error",
-					"message":"Failed to Update Data",
-					"source":"/shines/main/home-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/home-page", c)
 				return
 			}
 			c.Redirect(
@@ -951,16 +814,8 @@ func UpdateProductHandler(c *gin.Context) {
 			product.ProductImage = file.Filename
 			err = models.DB.Model(&models.Product{}).Where("Product_id = ?", productId).Updates(&product).Error
 			if err != nil {
-				context := gin.H {
-					"title":"Error",
-					"message":"Failed to Update Data",
-					"source":"/shines/main/home-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/home-page", c)
 				return
 			}
 			c.Redirect(
@@ -971,21 +826,21 @@ func UpdateProductHandler(c *gin.Context) {
 		}
 	}
 
-	context := gin.H {
-		"title":"Update Product",
-		"productNameErr":productNameErr,
-		"categoryErr":categoryErr,
-		"priceErr":priceErr,
-		"quantityErr":quantityErr,
-		"fileErr":fileErr,
-		"productName":productName,
-		"description":description,
-		"category":category,
-		"price":price,
-		"quantity":quantity,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
-		"productImage":product.ProductImage,
+	context := gin.H{
+		"title":          "Update Product",
+		"productNameErr": productNameErr,
+		"categoryErr":    categoryErr,
+		"priceErr":       priceErr,
+		"quantityErr":    quantityErr,
+		"fileErr":        fileErr,
+		"productName":    productName,
+		"description":    description,
+		"category":       category,
+		"price":          price,
+		"quantity":       quantity,
+		"isSeller":       IsSeller(c),
+		"isAdmin":        IsAdmin(c),
+		"productImage":   product.ProductImage,
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1016,24 +871,16 @@ func ViewSellerCatalogHandler(c *gin.Context) {
 	products := []models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("Shop_id = ?", shopId).Find(&products).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/seller-catalog-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/seller-catalog-page", c)
 		return
 	}
 
-	context := gin.H {
-		"title":"Seller Catalog",
-		"products":products,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":    "Seller Catalog",
+		"products": products,
+		"isSeller": IsSeller(c),
+		"isAdmin":  IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1064,29 +911,21 @@ func ViewDeleteConfirmationHandler(c *gin.Context) {
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("Product_id = ?", productId).First(&product).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/seller-catalog-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/seller-catalog-page", c)
 		return
 	}
 
-	context := gin.H {
-		"title":"Delete Confirmation",
-		"productName":product.ProductName,
-		"productId":productId,
-		"productPrice":product.ProductPrice,
-		"productStock":product.ProductStock,
-		"productImage":product.ProductImage,
-		"productDescription":product.ProductDescription,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":              "Delete Confirmation",
+		"productName":        product.ProductName,
+		"productId":          productId,
+		"productPrice":       product.ProductPrice,
+		"productStock":       product.ProductStock,
+		"productImage":       product.ProductImage,
+		"productDescription": product.ProductDescription,
+		"isSeller":           IsSeller(c),
+		"isAdmin":            IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1117,16 +956,8 @@ func DeleteProductHandler(c *gin.Context) {
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("Product_id = ?", productId).First(&product).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/seller-catalog-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/seller-catalog-page", c)
 		return
 	}
 	DeleteProduct(c, productId)
@@ -1141,38 +972,30 @@ func ViewAdminHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
 	if role != "Admin" {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/home-page",
+			http.StatusFound,
+			"shines/main/home-page",
 		)
 		return
 	}
 	users := []models.User{}
 	err := models.DB.Model(&models.User{}).Select("*").Find(&users).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-		"message":"Failed to Get Data",
-		"source":"/shines/main/administrator-page",
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
+		return
 	}
-	c.HTML(
-		http.StatusInternalServerError,
-		"error.html",
-		context,
-	)
-	return
-}
-	context := gin.H {
-		"title":"Administrator",
-		"users":users,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":    "Administrator",
+		"users":    users,
+		"isSeller": IsSeller(c),
+		"isAdmin":  IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1186,45 +1009,37 @@ func ViewDetailPersonalHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
 	if role != "Admin" {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/home-page",
+			http.StatusFound,
+			"shines/main/home-page",
 		)
 		return
 	}
 	strUserId := c.Param("userId")
-	userId , _ := strconv.Atoi(strUserId)
+	userId, _ := strconv.Atoi(strUserId)
 	profile := models.Profile{}
 	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/administrator-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
 		return
 	}
-	context	:= gin.H {
-		"title":"Detail User Information",
-		"firstName":profile.FirstName,
-		"lastName":profile.LastName,
-		"address":profile.Address,
-		"image":profile.Image,
-		"userID":userId,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
-		"isAdminTarget":IsAdminTarget(c, int(userId)),
+	context := gin.H{
+		"title":         "Detail User Information",
+		"firstName":     profile.FirstName,
+		"lastName":      profile.LastName,
+		"address":       profile.Address,
+		"image":         profile.Image,
+		"userID":        userId,
+		"isSeller":      IsSeller(c),
+		"isAdmin":       IsAdmin(c),
+		"isAdminTarget": IsAdminTarget(c, int(userId)),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1238,15 +1053,15 @@ func DetailPersonalHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
 	if role != "Admin" {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/home-page",
+			http.StatusFound,
+			"shines/main/home-page",
 		)
 		return
 	}
@@ -1261,7 +1076,7 @@ func DetailPersonalHandler(c *gin.Context) {
 	lastName = c.PostForm("lastname")
 	address = c.PostForm("address")
 
-	if len(firstName) < 2  && len(firstName) != 0 {
+	if len(firstName) < 2 && len(firstName) != 0 {
 		firstNameErr = "Minimum First Name is 2 Character!"
 	}
 	if len(lastName) < 3 && len(lastName) != 0 {
@@ -1274,25 +1089,17 @@ func DetailPersonalHandler(c *gin.Context) {
 
 	file, err := c.FormFile("picture")
 	if file == nil {
-		if firstNameErr == "" && lastNameErr == ""  && addressErr == "" {
-			profile := models.Profile {
-				UserID: uint(UserId),
+		if firstNameErr == "" && lastNameErr == "" && addressErr == "" {
+			profile := models.Profile{
+				UserID:    uint(UserId),
 				FirstName: firstName,
-				LastName: lastName,
-				Address: address,
+				LastName:  lastName,
+				Address:   address,
 			}
 			err := models.DB.Model(&models.Profile{}).Where("user_id = ?", UserId).Updates(&profile).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/personal-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/personal-information-page", c)
 				return
 			}
 			c.Redirect(
@@ -1301,16 +1108,16 @@ func DetailPersonalHandler(c *gin.Context) {
 			)
 			return
 		}
-		context := gin.H {
-			"title":"Detail User Information",
-			"firstName":profile.FirstName,
-			"lastName":profile.LastName,
-			"address":profile.Address,
-			"firstNameErr":firstNameErr,
-			"userID":UserId,
-			"lastNameErr":lastNameErr,
-			"image":profile.Image,
-			"addressErr":addressErr,
+		context := gin.H{
+			"title":        "Detail User Information",
+			"firstName":    profile.FirstName,
+			"lastName":     profile.LastName,
+			"address":      profile.Address,
+			"firstNameErr": firstNameErr,
+			"userID":       UserId,
+			"lastNameErr":  lastNameErr,
+			"image":        profile.Image,
+			"addressErr":   addressErr,
 		}
 		c.HTML(
 			http.StatusOK,
@@ -1325,26 +1132,18 @@ func DetailPersonalHandler(c *gin.Context) {
 		if err != nil {
 			fileErr = "Failed Upload Picture"
 		}
-		if firstNameErr == "" && lastNameErr == ""  && addressErr == "" && fileErr == "" {
-			profile := models.Profile {
-				UserID: uint(UserId),
+		if firstNameErr == "" && lastNameErr == "" && addressErr == "" && fileErr == "" {
+			profile := models.Profile{
+				UserID:    uint(UserId),
 				FirstName: firstName,
-				LastName: lastName,
-				Address: address,
-				Image: file.Filename,
+				LastName:  lastName,
+				Address:   address,
+				Image:     file.Filename,
 			}
 			err := models.DB.Model(&models.Profile{}).Where("user_id = ?", UserId).Updates(&profile).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/personal-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/personal-information-page", c)
 				return
 			}
 			c.Redirect(
@@ -1353,19 +1152,19 @@ func DetailPersonalHandler(c *gin.Context) {
 			)
 			return
 		}
-		context := gin.H {
-			"title":"Detail User Information",
-			"firstName":profile.FirstName,
-			"lastName":profile.LastName,
-			"address":profile.Address,
-			"image":profile.Image,
-			"firstNameErr":firstNameErr,
-			"lastNameErr":lastNameErr,
-			"addressErr":addressErr,
-			"fileErr":fileErr,
-			"isSeller":IsSeller(c),
-			"isAdmin":IsAdmin(c),
-			"isAdminTarget":IsAdminTarget(c, int(UserId)),
+		context := gin.H{
+			"title":         "Detail User Information",
+			"firstName":     profile.FirstName,
+			"lastName":      profile.LastName,
+			"address":       profile.Address,
+			"image":         profile.Image,
+			"firstNameErr":  firstNameErr,
+			"lastNameErr":   lastNameErr,
+			"addressErr":    addressErr,
+			"fileErr":       fileErr,
+			"isSeller":      IsSeller(c),
+			"isAdmin":       IsAdmin(c),
+			"isAdminTarget": IsAdminTarget(c, int(UserId)),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -1380,64 +1179,48 @@ func ViewDetailCredentialHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
 	if role != "Admin" {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/home-page",
+			http.StatusFound,
+			"shines/main/home-page",
 		)
 		return
 	}
 	strUserId := c.Param("userId")
-	userId , _ := strconv.Atoi(strUserId)
+	userId, _ := strconv.Atoi(strUserId)
 	user := models.User{}
 	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/administrator-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
 		return
 	}
 	profile := models.Profile{}
 	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/administrator-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
 		return
 	}
 	fmt.Println(IsAdminTarget(c, userId))
-	context := gin.H {
-		"title":"Detail Credential Information",
-		"username":user.Username,
-		"email":user.Email,
-		"image":profile.Image,
-		"firstName":profile.FirstName,
-		"lastName":profile.LastName,
-		"address":profile.Address,
-		"isSeller":IsSeller(c),
-		"role":user.Role,
-		"userID":userId,
-		"isAdmin":IsAdmin(c),
-		"isAdminTarget":IsAdminTarget(c, userId),
+	context := gin.H{
+		"title":         "Detail Credential Information",
+		"username":      user.Username,
+		"email":         user.Email,
+		"image":         profile.Image,
+		"firstName":     profile.FirstName,
+		"lastName":      profile.LastName,
+		"address":       profile.Address,
+		"isSeller":      IsSeller(c),
+		"role":          user.Role,
+		"userID":        userId,
+		"isAdmin":       IsAdmin(c),
+		"isAdminTarget": IsAdminTarget(c, userId),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1451,15 +1234,15 @@ func DetailCredentialHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
 	if role != "Admin" {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/home-page",
+			http.StatusFound,
+			"shines/main/home-page",
 		)
 		return
 	}
@@ -1469,31 +1252,15 @@ func DetailCredentialHandler(c *gin.Context) {
 	user := models.User{}
 	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/credential-information-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/credential-information-page", c)
 		return
 	}
 	profile := models.Profile{}
 	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/credential-information-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/credential-information-page", c)
 		return
 	}
 	var username, email, password1, password2 string
@@ -1521,23 +1288,15 @@ func DetailCredentialHandler(c *gin.Context) {
 
 	if usernameErr == "" && emailErr == "" && password1Err == "" && password2Err == "" {
 		if password1 == "" {
-			newUser := models.User {
+			newUser := models.User{
 				Username: username,
-				Email: email,
-				Role: models.UserRole(roleTarget),
+				Email:    email,
+				Role:     models.UserRole(roleTarget),
 			}
 			err = models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&newUser).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/credential-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/credential-information-page", c)
 				return
 			}
 			targetUrl := fmt.Sprintf("/shines/main/detail-credential-page/%d", userId)
@@ -1554,24 +1313,16 @@ func DetailCredentialHandler(c *gin.Context) {
 		if err != nil {
 			panic(err)
 		}
-		newUser := models.User {
+		newUser := models.User{
 			Username: username,
-			Email: email,
-			Role: models.UserRole(roleTarget),
+			Email:    email,
+			Role:     models.UserRole(roleTarget),
 			Password: string(newHashedPassword),
 		}
 		err = models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&newUser).Error
 		if err != nil {
-			context := gin.H{
-				"title":   "Error",
-				"message": "Failed to Update Data",
-				"source":  "/shines/main/credential-information-page",
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
+
+			ErrorHandler1("Failed to Update Data", "/shines/main/credential-information-page", c)
 			return
 		}
 		targetUrl := fmt.Sprintf("/shines/main/detail-credential-page/%d", userId)
@@ -1581,19 +1332,19 @@ func DetailCredentialHandler(c *gin.Context) {
 		)
 		return
 	}
-	context := gin.H {
-		"title":"Credential Information",
-		"username":middlewares.GetSession(c),
-		"email":user.Email,
-		"image":profile.Image,
-		"password":user.Password,
-		"usernameErr":usernameErr,
-		"emailErr":emailErr,
-		"password1Err":password1Err,
-		"password2Err":password2Err,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
-		"isAdminTarget":IsAdminTarget(c, userId),
+	context := gin.H{
+		"title":         "Credential Information",
+		"username":      middlewares.GetSession(c),
+		"email":         user.Email,
+		"image":         profile.Image,
+		"password":      user.Password,
+		"usernameErr":   usernameErr,
+		"emailErr":      emailErr,
+		"password1Err":  password1Err,
+		"password2Err":  password2Err,
+		"isSeller":      IsSeller(c),
+		"isAdmin":       IsAdmin(c),
+		"isAdminTarget": IsAdminTarget(c, userId),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1607,62 +1358,46 @@ func ViewDetailShopHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
 	if role != "Admin" {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/home-page",
+			http.StatusFound,
+			"shines/main/home-page",
 		)
 		return
 	}
 	strUserId := c.Param("userId")
-	userId , _ := strconv.Atoi(strUserId)
+	userId, _ := strconv.Atoi(strUserId)
 	profile := models.Profile{}
 	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/administrator-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
 		return
 	}
 
 	shop := models.Shop{}
 	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", userId).First(&shop).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/administrator-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
 		return
 	}
-	context := gin.H {
-		"title":"Detail Shop Information",
-		"image":profile.Image,
-		"shopName":shop.ShopName,
-		"address":shop.ShopAddress,
-		"description":shop.ShopDescription,
-		"shopImage":shop.ShopImage,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
-		"isAdminTarget":IsAdminTarget(c, userId),
-		"userID":userId,
+	context := gin.H{
+		"title":         "Detail Shop Information",
+		"image":         profile.Image,
+		"shopName":      shop.ShopName,
+		"address":       shop.ShopAddress,
+		"description":   shop.ShopDescription,
+		"shopImage":     shop.ShopImage,
+		"isSeller":      IsSeller(c),
+		"isAdmin":       IsAdmin(c),
+		"isAdminTarget": IsAdminTarget(c, userId),
+		"userID":        userId,
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1676,49 +1411,33 @@ func DetailShopHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
 	if role != "Admin" {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/home-page",
+			http.StatusFound,
+			"shines/main/home-page",
 		)
 		return
 	}
 	strUserId := c.Param("userId")
-	userId , _ := strconv.Atoi(strUserId)
+	userId, _ := strconv.Atoi(strUserId)
 	profile := models.Profile{}
 	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/administrator-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
 		return
 	}
 
 	shop := models.Shop{}
 	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", userId).First(&shop).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/administrator-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
 		return
 	}
 
@@ -1740,24 +1459,16 @@ func DetailShopHandler(c *gin.Context) {
 	file, err := c.FormFile("photo")
 	if file == nil {
 		if shopNameErr == "" && addressErr == "" {
-			shop := models.Shop {
-				UserID: uint(userId),
-				ShopName: shopName,
+			shop := models.Shop{
+				UserID:          uint(userId),
+				ShopName:        shopName,
 				ShopDescription: description,
-				ShopAddress: address,
+				ShopAddress:     address,
 			}
 			err := models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Updates(&shop).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/shop-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
 			SetRoleTarget(c, userId)
@@ -1768,18 +1479,18 @@ func DetailShopHandler(c *gin.Context) {
 			)
 			return
 		}
-		context := gin.H {
-			"title":"Shop Information",
-			"image":profile.Image,
-			"shopName":shop.ShopName,
-			"address":shop.ShopAddress,
-			"description":shop.ShopDescription,
-			"shopImage":shop.ShopImage,
-			"addressErr":addressErr,
-			"shopNameErr":shopNameErr,
-			"isAdmin":IsAdmin(c),
-			"userID":userId,
-			"isAdminTarget":IsAdminTarget(c, userId),
+		context := gin.H{
+			"title":         "Shop Information",
+			"image":         profile.Image,
+			"shopName":      shop.ShopName,
+			"address":       shop.ShopAddress,
+			"description":   shop.ShopDescription,
+			"shopImage":     shop.ShopImage,
+			"addressErr":    addressErr,
+			"shopNameErr":   shopNameErr,
+			"isAdmin":       IsAdmin(c),
+			"userID":        userId,
+			"isAdminTarget": IsAdminTarget(c, userId),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -1794,26 +1505,18 @@ func DetailShopHandler(c *gin.Context) {
 		if err != nil {
 			fileErr = "Failed Upload Picture"
 		}
-		if shopNameErr == ""  && addressErr == "" && fileErr == "" {
-			shop = models.Shop {
-				UserID: uint(userId),
-				ShopName: shopName,
+		if shopNameErr == "" && addressErr == "" && fileErr == "" {
+			shop = models.Shop{
+				UserID:          uint(userId),
+				ShopName:        shopName,
 				ShopDescription: description,
-				ShopAddress: address,
-				ShopImage: file.Filename,
+				ShopAddress:     address,
+				ShopImage:       file.Filename,
 			}
 			err = models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Updates(&shop).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/shop-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
 			SetRoleTarget(c, userId)
@@ -1824,18 +1527,18 @@ func DetailShopHandler(c *gin.Context) {
 			)
 			return
 		}
-		context := gin.H {
-			"title":"Shop Information",
-			"shopName":shop.ShopName,
-			"address":shop.ShopAddress,
-			"shopImage":shop.ShopImage,
-			"image":profile.Image,
-			"shopNameErr":shopNameErr,
-			"addressErr":addressErr,
-			"fileErr":fileErr,
-			"isAdmin":IsAdmin(c),
-			"userID":userId,
-			"isAdminTarget":IsAdminTarget(c, userId),
+		context := gin.H{
+			"title":         "Shop Information",
+			"shopName":      shop.ShopName,
+			"address":       shop.ShopAddress,
+			"shopImage":     shop.ShopImage,
+			"image":         profile.Image,
+			"shopNameErr":   shopNameErr,
+			"addressErr":    addressErr,
+			"fileErr":       fileErr,
+			"isAdmin":       IsAdmin(c),
+			"userID":        userId,
+			"isAdminTarget": IsAdminTarget(c, userId),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -1858,51 +1561,35 @@ func ViewDetailProductHandler(c *gin.Context) {
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/home-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
 	}
 	shopId := product.ShopId
 	shop := models.Shop{}
 	err = models.DB.Model(&models.Shop{}).Select("*").Where("seller_id = ?", shopId).First(&shop).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/home-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
 	}
 	stockSlice := make([]int, product.ProductStock)
 	for i := 0; i < int(product.ProductStock); i++ {
-			stockSlice[i] = i + 1
+		stockSlice[i] = i + 1
 	}
-	context := gin.H {
-		"title":"Detail Product",
-		"productName":product.ProductName,
-		"description":product.ProductDescription,
-		"category":product.ProductCategory,
-		"price":product.ProductPrice,
-		"productImage":product.ProductImage,
-		"stock":product.ProductStock,
-		"shopId":shopId,
-		"shopName":shop.ShopName,
-		"quantityOrder":stockSlice,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":         "Detail Product",
+		"productName":   product.ProductName,
+		"description":   product.ProductDescription,
+		"category":      product.ProductCategory,
+		"price":         product.ProductPrice,
+		"productImage":  product.ProductImage,
+		"stock":         product.ProductStock,
+		"shopId":        shopId,
+		"shopName":      shop.ShopName,
+		"quantityOrder": stockSlice,
+		"isSeller":      IsSeller(c),
+		"isAdmin":       IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -1915,8 +1602,8 @@ func DetailProductHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
@@ -1928,16 +1615,8 @@ func DetailProductHandler(c *gin.Context) {
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/home-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
 	}
 
@@ -1953,60 +1632,45 @@ func ViewCartHandler(c *gin.Context) {
 	userId := GetuserId(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
 	cart := []models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Select("*").Where("user_id = ?", userId).Find(&cart).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/home-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
-	
+
 	}
 	totalPrice := new(big.Float).SetFloat64(0.0)
 	for _, item := range cart {
 		priceProduct := new(big.Float).SetFloat64(GetPriceProduct(c, int(item.ProductID)))
 		quantity := big.NewFloat(float64(item.Quantity))
 		totalPrice.Add(totalPrice, new(big.Float).Mul(priceProduct, quantity))
+
 	}
 	transactions := []models.TransactionDetail{}
 	err = models.DB.Table("carts").
-	Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity").
-	Joins("left join users on carts.user_id = users.user_id").
-	Joins("left join products on carts.product_id = products.product_id").
-	Where("carts.user_id = ?", userId).
-	Find(&transactions).Error
+		Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity").
+		Joins("left join users on carts.user_id = users.user_id").
+		Joins("left join products on carts.product_id = products.product_id").
+		Where("carts.user_id = ?", userId).
+		Find(&transactions).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/home-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
-	
+
 	}
-	context := gin.H {
-		"title":"Cart",
-		"totalPrice":totalPrice,
-		"isSeller":IsSeller(c),
-		"Transactions":transactions,
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":        "Cart",
+		"totalPrice":   totalPrice,
+		"isSeller":     IsSeller(c),
+		"Transactions": transactions,
+		"isAdmin":      IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -2019,8 +1683,8 @@ func ViewUpdateCartHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
@@ -2029,70 +1693,45 @@ func ViewUpdateCartHandler(c *gin.Context) {
 	cart := models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Select("*").Where("cart_id = ?", cartId).First(&cart).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/cart-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
 		return
 	}
 	productId := int(cart.ProductID)
 	product := models.Product{}
 	err = models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/cart-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
 		return
 	}
 	stockSlice := make([]int, product.ProductStock)
 	for i := 0; i < int(product.ProductStock); i++ {
 		stockSlice[i] = i + 1
 	}
-	productId = int(cart.ProductID)
 	shop := models.Shop{}
 	err = models.DB.Model(&models.Shop{}).Select("*").Where("seller_id = ?", product.ShopId).First(&shop).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/cart-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
 		return
-	
+
 	}
-	context := gin.H {
-		"title":"Update Cart",
-		"productName":product.ProductName,
-		"description":product.ProductDescription,
-		"category":product.ProductCategory,
-		"price":product.ProductPrice,
-		"shopName":shop.ShopName,
-		"productPrice":product.ProductPrice,
-		"productImage":product.ProductImage,
-		"quantity":cart.Quantity,
-		"stock":product.ProductStock,
-		"cartId":cartId,
-		"quantityOrder":stockSlice,
-		"isSeller":IsSeller(c),
-		"isAdmin":IsAdmin(c),
+	context := gin.H{
+		"title":         "Update Cart",
+		"productName":   product.ProductName,
+		"description":   product.ProductDescription,
+		"category":      product.ProductCategory,
+		"price":         product.ProductPrice,
+		"shopName":      shop.ShopName,
+		"productPrice":  product.ProductPrice,
+		"productImage":  product.ProductImage,
+		"quantity":      cart.Quantity,
+		"stock":         product.ProductStock,
+		"cartId":        cartId,
+		"quantityOrder": stockSlice,
+		"isSeller":      IsSeller(c),
+		"isAdmin":       IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -2105,8 +1744,8 @@ func UpdateCartHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
@@ -2117,32 +1756,16 @@ func UpdateCartHandler(c *gin.Context) {
 	cart := models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Select("*").Where("cart_id = ?", cartId).First(&cart).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/cart-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
 		return
 	}
 	productId := int(cart.ProductID)
 	product := models.Product{}
 	err = models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/cart-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
 		return
 	}
 	fmt.Println(orderQuantity)
@@ -2158,8 +1781,8 @@ func DeleteCartHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
@@ -2176,8 +1799,8 @@ func CheckoutHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
-		http.StatusFound,
-		"shines/main/login-page",
+			http.StatusFound,
+			"shines/main/login-page",
 		)
 		return
 	}
@@ -2185,36 +1808,20 @@ func CheckoutHandler(c *gin.Context) {
 	cart := []models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Select("*").Where("user_id = ?", userId).Find(&cart).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/cart-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
 		return
 	}
 	details := []models.TransactionDetail{}
 	err = models.DB.Table("carts").
-	Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity as quantity").
-	Joins("left join users on carts.user_id = users.user_id").
-	Joins("left join products on carts.product_id = products.product_id").
-	Where("carts.user_id = ?", userId).
-	Find(&details).Error
+		Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity as quantity").
+		Joins("left join users on carts.user_id = users.user_id").
+		Joins("left join products on carts.product_id = products.product_id").
+		Where("carts.user_id = ?", userId).
+		Find(&details).Error
 	if err != nil {
-		context := gin.H {
-			"title":"Error",
-			"message":"Failed to Get Data",
-			"source":"/shines/main/cart-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
 		return
 	}
 	for _, item := range details {
