@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -169,6 +170,77 @@ func DeleteCart(c *gin.Context, cartID int) {
 	if err != nil {
 
 		ErrorHandler1("Failed to Delete Data", urlSource, c)
+		return
+	}
+}
+
+func GetNameProduct(c *gin.Context, productId int) string {
+	product := models.Product{}
+	models.DB.Model(&models.Product{}).Select("product_name").Where("product_id = ?", productId).First(&product)
+	return product.ProductName
+}
+
+func AddToTransaction(c *gin.Context, price float64, productID int, quantityOrder int) {
+	userID := GetuserId(c)
+	transaction := models.Transactions{}
+	transaction.UserID = uint(userID)
+	transaction.ProductPrice = price
+	transaction.Quantity = uint(quantityOrder)
+	transaction.ProductName = GetNameProduct(c, productID)
+	now := time.Now()
+	transaction.TransactionDate = now.Format("2006-01-02")
+	transaction.ProductID = uint(productID)
+	err := models.DB.Create(&transaction).Error
+	if err != nil {
+		context := gin.H{
+			"title":   "Error",
+			"message": "Failed to Create Data",
+			"source":  "/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+}
+
+func UpdateStockProduct(c *gin.Context, productId int, quantityOrder int) {
+	product := models.Product{}
+	models.DB.Model(&models.Product{}).Where("product_id = ?", productId).First(&product)
+	product.ProductStock = product.ProductStock - uint(quantityOrder)
+	err := models.DB.Save(&product).Error
+	if err != nil {
+		context := gin.H{
+			"title":   "Error",
+			"message": "Failed to Update Data",
+			"source":  "/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+}
+
+func ClearCart(c *gin.Context) {
+	userId := GetuserId(c)
+	cart := models.Cart{}
+	err := models.DB.Model(&models.Cart{}).Where("user_id = ?", userId).Delete(&cart).Error
+	if err != nil {
+		context := gin.H{
+			"title":   "Error",
+			"message": "Failed to Delete Data",
+			"source":  "/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
 		return
 	}
 }
