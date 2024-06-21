@@ -204,6 +204,40 @@ func UpdateCart(c *gin.Context, cartID, quantity,stock int) {
 		}
 }
 
+func DeleteCart(c *gin.Context, cartID int) {
+	userId := GetuserId(c)
+	urlSource := fmt.Sprintf("/shines/main/cart-page")
+	cart := models.Cart{}
+	err := models.DB.Model(&models.Cart{}).Where("user_id = ? AND cart_id = ?", userId, cartID).First(&cart).Error
+	if err != nil {
+		context := gin.H{
+			"title":   "Error",
+			"message": "Failed to Get Data",
+			"source":  urlSource,
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	err = models.DB.Delete(&cart).Error
+	if err != nil {
+		context := gin.H{
+			"title":   "Error",
+			"message": "Failed to Delete Data",
+			"source":  urlSource,
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+}
+
 func GetRoleTarget(c *gin.Context, userId int) string {
 	user := models.User{}
 	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
