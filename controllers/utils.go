@@ -73,16 +73,8 @@ func CreateProfile(c *gin.Context) {
 		}
 		err := models.DB.Create(&profile).Error
 		if err != nil {
-			context := gin.H {
-				"title":"Error",
-				"message":"Failed to Create Data",
-				"source":"/shines/main/personal-information-page",
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
+
+			ErrorHandler1("Failed to Create Data", "/shines/main/personal-information-page", c)
 			return
 		}	
 	}
@@ -102,16 +94,8 @@ func CreateShop(c *gin.Context) {
 		}
 		err := models.DB.Create(&shop).Error
 		if err != nil {
-			context := gin.H {
-				"title":"Error",
-				"message":"Failed to Create Data",
-				"source":"/shines/main/personal-information-page",
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
+
+			ErrorHandler1("Failed to Create Data", "/shines/main/personal-information-page", c)
 			return
 		}	
 	}
@@ -128,16 +112,8 @@ func AddToCart(c *gin.Context, productID int, quantity int, stock int) {
 		cart.Quantity = uint(quantity)
 		err = models.DB.Create(&cart).Error
 		if err != nil {
-			context := gin.H{
-				"title":   "Error",
-				"message": "Failed to Create Data",
-				"source":  urlSource,
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
+
+			ErrorHandler1("Failed to Create Data", urlSource, c)
 			return
 		}
 	} else {
@@ -148,16 +124,7 @@ func AddToCart(c *gin.Context, productID int, quantity int, stock int) {
 		err = models.DB.Save(&cart).Error
 		if err != nil {
 			
-			context := gin.H{
-				"title":   "Error",
-				"message": "Failed to Update Data",
-				"source":  urlSource,
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
+			ErrorHandler1("Failed to Update Data", urlSource, c)
 			return
 		}
 	}
@@ -169,16 +136,8 @@ func UpdateCart(c *gin.Context, cartID, quantity,stock int) {
 	cart := models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Where("user_id = ? AND cart_id = ?", userId, cartID).First(&cart).Error
 	if err != nil {
-		context := gin.H{
-			"title":   "Error",
-			"message": "Failed to Get Data",
-			"source":  urlSource,
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", urlSource, c)
 		return
 	}
 	newQuantity := uint(quantity)
@@ -190,16 +149,8 @@ func UpdateCart(c *gin.Context, cartID, quantity,stock int) {
 		}
 		err = models.DB.Save(&cart).Error
 		if err != nil {	
-			context := gin.H{
-				"title":   "Error",
-				"message": "Failed to Update Data",
-				"source":  urlSource,
-			}
-			c.HTML(
-				http.StatusInternalServerError,
-				"error.html",
-				context,
-			)
+
+			ErrorHandler1("Failed to Update Data", urlSource, c)
 			return
 		}
 }
@@ -210,30 +161,14 @@ func DeleteCart(c *gin.Context, cartID int) {
 	cart := models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Where("user_id = ? AND cart_id = ?", userId, cartID).First(&cart).Error
 	if err != nil {
-		context := gin.H{
-			"title":   "Error",
-			"message": "Failed to Get Data",
-			"source":  urlSource,
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", urlSource, c)
 		return
 	}
 	err = models.DB.Delete(&cart).Error
 	if err != nil {
-		context := gin.H{
-			"title":   "Error",
-			"message": "Failed to Delete Data",
-			"source":  urlSource,
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Delete Data", urlSource, c)
 		return
 	}
 }
@@ -275,16 +210,8 @@ func SetRole(c *gin.Context) {
 		user.Role = "Seller"
 		err := models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&user).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/shop-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
 			return
@@ -301,16 +228,8 @@ func SetRoleTarget(c *gin.Context, userId int) {
 		user.Role = "Seller"
 		err := models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&user).Error
 			if err != nil {
-				context := gin.H{
-					"title":   "Error",
-					"message": "Failed to Update Data",
-					"source":  "/shines/main/shop-information-page",
-				}
-				c.HTML(
-					http.StatusInternalServerError,
-					"error.html",
-					context,
-				)
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
 			return
@@ -324,16 +243,8 @@ func GetShopId(c *gin.Context) int {
 	var shopId int
 	err := models.DB.Model(&models.Shop{}).Select("seller_id").Where("user_id = ?", userId).First(&shopId).Error
 	if err != nil {
-		context := gin.H{
-			"title":   "Error",
-			"message": "Failed to Get Data",
-			"source":  "/shines/main/shop-information-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/shop-information-page", c)
 		return 0
 	}
 	return shopId
@@ -344,16 +255,8 @@ func DeleteProduct(c *gin.Context, productId string) {
 	models.DB.Where("product_id = ?", productId).First(&product)
 	err := models.DB.Delete(&product).Error
 	if err != nil {
-		context := gin.H{
-			"title":   "Error",
-			"message": "Failed to Delete Data",
-			"source":  "/shines/main/seller-catalog-page",
-		}
-		c.HTML(
-			http.StatusInternalServerError,
-			"error.html",
-			context,
-		)
+
+		ErrorHandler1("Failed to Delete Data", "/shines/main/seller-catalog-page", c)
 		return
 	}
 	c.Redirect(http.StatusFound, "/shines/main/seller-catalog-page")
