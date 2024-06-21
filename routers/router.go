@@ -44,5 +44,6 @@ func MainRouter(c *gin.RouterGroup) {
 		main.GET("update-cart-page/:cartId", controllers.ViewUpdateCartHandler)
 		main.POST("update-cart-page/:cartId", controllers.UpdateCartHandler)
 		main.GET("delete-cart-page/:cartId", controllers.DeleteCartHandler)
+		main.GET("checkout-page/", controllers.CheckoutHandler)
 	}
 }
