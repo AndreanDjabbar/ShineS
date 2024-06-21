@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"math/big"
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
@@ -35,8 +36,12 @@ func ViewHomeHandler(c *gin.Context) {
 		)
 		return
 	}
+	userID := GetuserId(c)
 	products := []models.Product{}
-	err := models.DB.Model(&models.Product{}).Select("*").Find(&products).Error
+	err := models.DB.Model(&models.Product{}).
+    Select("*").
+    Where("Shop_id != ? AND product_stock != ?", userID, 0).
+    Find(&products).Error
 	if err != nil {
 		context := gin.H {
 			"title":"Error",
@@ -1969,12 +1974,12 @@ func ViewCartHandler(c *gin.Context) {
 		return
 	
 	}
-	totalPrice := 0.0
+	totalPrice := new(big.Float).SetFloat64(0.0)
 	for _, item := range cart {
-		priceProduct := GetPriceProduct(c, int(item.ProductID))
-		totalPrice +=( priceProduct * float64(item.Quantity))
+		priceProduct := new(big.Float).SetFloat64(GetPriceProduct(c, int(item.ProductID)))
+		quantity := big.NewFloat(float64(item.Quantity))
+		totalPrice.Add(totalPrice, new(big.Float).Mul(priceProduct, quantity))
 	}
-
 	transactions := []models.TransactionDetail{}
 	err = models.DB.Table("carts").
 	Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity").
@@ -2164,5 +2169,61 @@ func DeleteCartHandler(c *gin.Context) {
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/cart-page",
+	)
+}
+
+func CheckoutHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+		http.StatusFound,
+		"shines/main/login-page",
+		)
+		return
+	}
+	userId := GetuserId(c)
+	cart := []models.Cart{}
+	err := models.DB.Model(&models.Cart{}).Select("*").Where("user_id = ?", userId).Find(&cart).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	details := []models.TransactionDetail{}
+	err = models.DB.Table("carts").
+	Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity as quantity").
+	Joins("left join users on carts.user_id = users.user_id").
+	Joins("left join products on carts.product_id = products.product_id").
+	Where("carts.user_id = ?", userId).
+	Find(&details).Error
+	if err != nil {
+		context := gin.H {
+			"title":"Error",
+			"message":"Failed to Get Data",
+			"source":"/shines/main/cart-page",
+		}
+		c.HTML(
+			http.StatusInternalServerError,
+			"error.html",
+			context,
+		)
+		return
+	}
+	for _, item := range details {
+		AddToTransaction(c, item.Price, int(item.ProductID), int(item.Quantity))
+		UpdateStockProduct(c, int(item.ProductID), int(item.Quantity))
+	}
+	ClearCart(c)
+	c.Redirect(
+		http.StatusFound,
+		"/shines/main/home-page",
 	)
 }
