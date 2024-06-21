@@ -82,8 +82,7 @@ func RegisterHandler(c *gin.Context) {
 			Phone:    phone,
 			Password: string(hashedPassword),
 			Role: "Customer",
-		}
-		
+		}		
 		err = models.DB.Create(&user).Error
 		if err != nil {
 			context := gin.H{
@@ -102,6 +101,7 @@ func RegisterHandler(c *gin.Context) {
 			http.StatusFound,
 			"/shines/main/login-page",
 		)
+		return
 }
 
 	context := gin.H{
