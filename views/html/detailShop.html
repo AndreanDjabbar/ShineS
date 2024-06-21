@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.title}}</title>
-    <link rel="stylesheet" href="/css/profilePersonal.css">
+    <link rel="stylesheet" href="/css/detailShop.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
                 <li><a href="/shines/main/home-page">Home</a></li>
                 <li><a href="">Category</a></li>
                 {{ if .isSeller }}
-                <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
+                    <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
                 {{ end }}
                 {{ if .isAdmin }}
                 <li><a href="/shines/main/administrator-page/">Administration</a></li>
@@ -38,82 +38,85 @@
             <div class="content-first-profile">
                 <img src="/images/{{.image}}" alt="" srcset="">
                 <ul>
-                    <li><a href="/shines/main/personal-information-page/" id="active">
+                    <li><a href="/shines/main/detail-personal-page/{{.userID}}">
                         <div class="link-user">
                             <i data-feather="user"></i>
                             <p>Personal Information</p>
                         </div>
                     </a></li>
-                    <li><a href="/shines/main/credential-information-page/">
+                    <li><a href="/shines/main/detail-credential-page/{{.userID}}">
                         <div class="link-credential">
                             <i data-feather="key"></i>
                             <p>Credentials</p>
                         </div>
                     </a></li>
-                    {{ if .isSeller }}
-                    <li><a href="/shines/main/shop-information-page/">
+                    <li><a href="/shines/main/detail-shop-page/{{.userID}}" id="active">
                         <div class="link-seller">
                             <i data-feather="shopping-bag"></i>
                             <p>Shop Profile</p>
                         </div>
                     </a></li>
-                    {{ else }}
-                    <li><a href="/shines/main/shop-information-page/">
-                        <div class="link-seller">
-                            <i data-feather="shopping-bag"></i>
-                            <p>Seller Registration</p>
-                        </div>
-                    </a></li>
-                    {{ end }}
                 </ul>
             </div>
         </div>
         <div class="content-second">
-            <a href="" id="content-second-title">Personal Information</a>
+            <a href="" id="content-second-title">Seller Registration</a>
             <form method="post" enctype="multipart/form-data">
-                <div class="form-fullname">
-                    <div class="form-username">
-                        <label for="firstname">First Name</label>
-                        {{ if .firstName }}
-                            <input type="text" id="firstname" name="firstname" value="{{.firstName}}" required>
+                <div class="main-info">
+                    <div class="main-info-1">
+                        <div class="form-shopName">
+                            <label for="shopName">Shop Name</label>
+                            {{ if .shopName }}
+                            <input type="text" id="shopName" name="shopName" value="{{.shopName}}">
+                            {{ else }}
+                            <input type="text" id="shopName" name="shopName" placeholder="Shop Name Unset">
+                            {{ end }}
+                            {{ if .shopNameErr }}
+                            <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .shopNameErr }}</p>
+                            {{ end }}
+                        </div>
+                        <div class="form-description">
+                        <label for="description">Description</label>
+                        {{ if .description }}
+                        <input type="text" id="description" name="description" value="{{.description}}">
                         {{ else }}
-                            <input type="text" id="firstname" name="firstname" required placeholder="Input Your First Name">
+                        <input type="text" id="description" name="description" placeholder="Description Unset">
                         {{ end }}
-                        {{ if .firstNameErr }}
-                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .firstNameErr }}</p>
+                        {{ if .descriptionErr }}
+                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .descriptionErr }}</p>
                         {{ end }}
+                        </div>
                     </div>
-                    <div class="form-username">
-                        <label for="lastname">Last Name</label>
-                        {{ if .lastName }}
-                            <input type="text" id="lastname" name="lastname" value="{{.lastName}}" required>
-                        {{ else }}
-                            <input type="text" id="lastname" name="lastname" required placeholder="Input Your Last Name">
-                        {{ end }}
-                        {{ if .lastNameErr }}
-                        <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .lastNameErr }}</p>
-                        {{ end }}
-                    </div>
+                    <img src="/images/{{.shopImage}}" alt="" srcset="">
                 </div>
                 <div class="form-address">
-                    <label for="address">Address</label>
+                    <label for="address">Shop Address</label>
                     {{  if .address }}
-                        <input type="text" id="address" name="address" value="{{.address}}" required>
+                        <input type="text" id="address" name="address" value="{{.address}}">
                     {{ else }}
-                        <input type="text" id="address" name="address" required placeholder="Input Your Address">
+                        <input type="text" id="address" name="address" placeholder="Address Unset">
                     {{ end }}
                     {{ if .addressErr }}
                     <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .addressErr }}</p>
                     {{ end }}
                 </div>
-                <div class="form-picture">
-                    <label for="picture">Profile Picture</label>
-                    <input type="file" id="picture" name="picture">
+                <div class="form-photo">
+                    <label for="photo">Shop Photo</label>
+                    <input type="file" id="photo" name="photo">
                     {{ if .fileErr }}
                     <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .fieErr }}</p>
                     {{ end }}
                 </div>
-                <button type="submit">Save Changes</button>
+                {{if .isAdminTarget}}
+                    <div class="command-button">
+                        <a href="../administrator-page">Back</a>
+                    </div>
+                {{else}}
+                    <div class="command-button">
+                        <a href="../administrator-page">Back</a>
+                        <button type="submit">Save Changes</button>
+                    </div>
+                {{end}}
                 </form>
             </div>
         </div>

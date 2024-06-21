@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/css/detailProduct.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="" id="nav-title">ShineS</a>
+        </div>
+        <div class="nav-right">
+            <ul class="nav-right1">
+                <li><a href="/shines/main/home-page">Home</a></li>
+                <li><a href="">Category</a></li>
+                {{ if .isSeller }}
+                    <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
+                {{ end }}
+                {{ if .isAdmin }}
+                <li><a href="/shines/main/administrator-page/">Administration</a></li>
+                {{ end }}
+            </ul>
+            <ul class="nav-right2">
+                <li><a href="">Cart</a></li>
+                <li><a href="../personal-information-page/">Profile</a></li>
+                <li><a href="../logout-page">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="content">
+        <div class="content-first">
+            <a href="" id="content-first-title">Detail Product</a>
+            <form method="post" enctype="multipart/form-data">
+                <div class="main-info">
+                    <div class="main-info-1">
+                        <div class="form-productName">
+                            <label for="productName">Product Name</label>
+                            <div class="productName">
+                                {{.productName}}
+                            </div>
+                        </div>
+                        <div class="form-description">
+                            <label for="description">Description</label>
+                            <div class="description">
+                                {{.description}}
+                            </div>
+                        </div>
+                    </div>
+                    <img src="/images/{{.productImage}}" alt="">
+                </div>
+                <div class="form-category">
+                    <label for="category">Product Category</label>
+                    <div class="category">
+                        {{.category}}
+                    </div>    
+                </div>
+                <div class="form-amount">
+                    <div class="form-price">
+                        <label for="price">Price</label>
+                        <div class="price">
+                            {{.price}}
+                        </div>
+                    </div>
+                    <div class="form-stock">
+                        <label for="stock">Stock</label>
+                        <div class="stock">
+                            {{.stock}}
+                        </div>    
+                    </div>
+                </div>
+                <div class="form-store">
+                    <label for="store">Store</label>
+                    <div class="store">
+                        <a href="">{{.shopName}}</a>
+                    </div>    
+                </div>
+                <div class="form-quantity">
+                    <label for="quantity">Order Quantity</label>
+                    <select name="quantity" id="quantity">
+                        {{range .quantityOrder}}
+                            <option value="{{.}}">{{.}}</option>
+                        {{end}}
+                    </select>    
+                </div>
+                <div class="command-button">
+                    <a href="/shines/main/home-page">Back</a>
+                    <button type="submit">Add to Cart</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

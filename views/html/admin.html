@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.title}}</title>
-    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/admin.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -27,7 +27,7 @@
                 {{ end }}
             </ul>
             <ul class="nav-right2">
-                <li><a href="../cart-page/">Cart</a></li>
+                <li><a href="">Cart</a></li>
                 <li><a href="../personal-information-page/">Profile</a></li>
                 <li><a href="../logout-page">Logout</a></li>
             </ul>
@@ -35,31 +35,31 @@
     </nav>
     <div class="content">
         <div class="content-first">
-            <div class="content-first-nav">
-                <a href="" id="content-first-title">All Products</a>
-            </div>
-            {{ if .products }}
-            <div class="content-second">
-                {{ range .products }}
-                    <div class="product">
-                        <img src="/images/{{.ProductImage}}" alt="" srcset="">
-                        <div class="product-info">
-                            <p>{{.ProductName}}</p>
-                            <p>Price: {{.ProductPrice}}</p>
-                            <p>Stock: {{.ProductStock}} pcs</p>
-                        </div>
-                        <div class="product-detailbtn">
-                            <a href="/shines/main/detail-product-page/{{.ProductId}}">Details</a>
-                        </div>
-                    </div>
-                    <br><br>
-                {{ end }}
-            </div>
-        {{ else }}
-            <div class="content-second">
-                <p>No products available</p>
-            </div>
-        {{end}}
+            <h3>All Users</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Detail Button</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $index, $user := .users}}
+                    <tr>
+                        <th scope="row">{{$index | add1}}</th>
+                        <td>{{$user.Username}}</td>
+                        <td>{{$user.Email}}</td>
+                        <td>{{$user.Phone}}</td>
+                        <td>{{$user.Role}}</td>
+                        <td><a href="../detail-personal-page/{{$user.UserId}}">Detail</a></td>
+                    </tr>
+                {{end}}
+                </tbody>
+            </table>
         </div>
     </div>
     <script>

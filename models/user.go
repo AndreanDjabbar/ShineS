@@ -1,11 +1,11 @@
 package models
 
-type userRole string
+type UserRole string
 
 const (
-	Admin userRole = "admin"
-	Seller userRole = "seller"
-	Customer userRole = "customer"
+	Admin UserRole = "admin"
+	Seller UserRole = "seller"
+	Customer UserRole = "customer"
 )
 
 type User struct {
@@ -14,25 +14,25 @@ type User struct {
     Email    string   `gorm:"not null;size:100"`
     Phone    string   `gorm:"unique"`
     Password string   `gorm:"unique;not null"`
-    Role     userRole `gorm:"type:ENUM('Admin', 'Seller', 'Customer');not null"`
+    Role     UserRole `gorm:"type:ENUM('Admin', 'Seller', 'Customer');not null"`
 }
 
 type Profile struct {
     ProfileId uint   `gorm:"primaryKey"`
     FirstName string `gorm:"size:50;"`
-    LastName string `gorm:"size:50;"`
-    Address string `gorm:"size:200;"`
-    Image  string `gorm:"size:200"`
+    LastName  string `gorm:"size:50;"`
+    Address   string `gorm:"size:200;"`
+    Image     string `gorm:"size:200"`
     UserID    uint
-    User      User   `gorm:"foreignKey:UserID"`
+    User      User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 }
 
 type Shop struct {
-    SellerId uint `gorm:"primaryKey"`
-    ShopName string `gorm:"size:100"`
+    SellerId        uint   `gorm:"primaryKey"`
+    ShopName        string `gorm:"size:100"`
     ShopDescription string `gorm:"size:200"`
-    ShopAddress string `gorm:"size:200"`
-    ShopImage string `gorm:"size:200"`
-    UserID uint
-    User User `gorm:"foreignKey:UserID"`
+    ShopAddress     string `gorm:"size:200"`
+    ShopImage       string `gorm:"size:200"`
+    UserID          uint
+    User            User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 }

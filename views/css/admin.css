@@ -1,0 +1,203 @@
+html, *, body {
+    padding: 0;
+    margin: 0;
+}
+
+ul li {
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    align-items: center;
+    background-color: #ffffff;
+    height: 114px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    z-index: 1000;
+}
+
+nav .nav-left {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    width: 10%;
+}
+
+nav .nav-right {
+    width: 80%;
+    display: flex;
+    padding-right: 20px;
+    justify-content: space-between;
+}
+
+nav .nav-right ul a{
+    font-size: 24px;
+    color: #000000;
+}
+
+nav .nav-right .nav-right1 {
+    display: flex;
+    align-items: center;
+    width: 9%;
+    gap: 40px;
+    justify-content: space-between;
+}
+
+nav .nav-right .nav-right2 {
+    display: flex;
+    align-items: center;
+    width: 25%;
+    justify-content: space-between;
+}
+
+nav #nav-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: #000000;
+    line-height: 48.41px;
+}
+
+.content {
+    background: rgba(211, 211, 211, 1);
+    width: 100%;
+    margin-top: 120px;
+    height: 1778px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.content-first {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 1336px;
+    margin-top: 30px;
+    padding: 60px;
+    height: 1558px;
+    top: 137px;
+    left: 432px;
+    gap: 40px;
+    border-radius: 20px;
+    opacity: 0px;
+    background-color: white;
+}
+
+.content-first h3 {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: inter;
+    color: #000000;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    font-family: inter;
+    border-collapse: collapse;
+}
+
+/* Adding zebra striping */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Adding hover effect */
+.table-hover tbody tr:hover {
+    color: #212529;
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+/* Adding custom border to table */
+.table th,
+.table td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Customizing table header */
+.table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Customizing table footer */
+.table tfoot th {
+    border-top: 2px solid #dee2e6;
+}
+
+/* Customizing the table-responsive class */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Adding custom styling for table rows */
+.table tbody tr {
+    transition: background-color 0.15s ease-in-out;
+}
+
+/* Customizing the table header background color and text color */
+.table thead th {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+/* Customizing the table footer background color and text color */
+.table tfoot th {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+/* Customizing the hover color for table rows */
+.table-hover tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+/* Adding custom padding to table cells */
+.table td, .table th {
+    padding: 12px 15px;
+}
+
+/* Custom font size for table cells */
+.table td {
+    font-size: 14px;
+}
+
+.table th {
+    font-size: 16px;
+}
+
+/* Custom text alignment */
+.table td,
+.table th {
+    text-align: left;
+}
+
+/* Customizing the border color */
+.table th,
+.table td {
+    border-color: #dee2e6;
+}
+
+.table a {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: 600;
+    padding: 7px 15px;
+    border-radius: 15px;
+}

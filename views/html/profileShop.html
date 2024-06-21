@@ -19,6 +19,12 @@
             <ul class="nav-right1">
                 <li><a href="/shines/main/home-page">Home</a></li>
                 <li><a href="">Category</a></li>
+                {{ if .isSeller }}
+                    <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
+                {{ end }}
+                {{ if .isAdmin }}
+                <li><a href="/shines/main/administrator-page/">Administration</a></li>
+                {{ end }}
             </ul>
             <ul class="nav-right2">
                 <li><a href="">Cart</a></li>
@@ -44,12 +50,22 @@
                             <p>Credentials</p>
                         </div>
                     </a></li>
+                    {{ if .isSeller }}
                     <li><a href="/shines/main/shop-information-page/" id="active">
+                        <div class="link-seller">
+                            <i data-feather="shopping-bag"></i>
+                            <p>Shop Profile</p>
+                        </div>
+                    </a></li>
+                    {{ else }}
+                    <li><a href="/shines/main/shop-information-page/"
+                        id="active">
                         <div class="link-seller">
                             <i data-feather="shopping-bag"></i>
                             <p>Seller Registration</p>
                         </div>
                     </a></li>
+                    {{ end }}    
                 </ul>
             </div>
         </div>
@@ -101,7 +117,7 @@
                     <p class="error-message" style="color: red; font-size: 14px; font-family: inter;">{{ .fieErr }}</p>
                     {{ end }}
                 </div>
-                <button type="submit">Register</button>
+                <button type="submit">{{.buttonCmnd}}</button>
                 </form>
             </div>
         </div>
