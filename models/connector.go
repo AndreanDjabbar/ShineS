@@ -10,7 +10,7 @@ var DB *gorm.DB
 func ConnectToDatabase() {
 	database, err := gorm.Open(
 		mysql.Open(
-			"Kelompok3:Kelompok3Shines@tcp(localhost:3306)/shines",
+			"root@tcp(localhost:3306)/shines",
 		),
 	)
 	if err != nil {
