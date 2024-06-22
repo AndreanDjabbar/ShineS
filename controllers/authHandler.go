@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
+	"shines/repositories"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +50,7 @@ func RegisterHandler(c *gin.Context) {
 		phoneErr = "Minimum phone is 8 Characters!"
 	}
 
-	if !isNumber(phone) {
+	if !repositories.IsNumber(phone) {
 		phoneErr = "Phone must be a number"
 	}
 
@@ -154,14 +155,14 @@ func LoginHandler(c *gin.Context) {
 
 	if usernameErr == "" && passwordErr == "" {
 		middlewares.SaveSession(c, username)
-		err := CreateProfile(c)
+		err := repositories.CreateProfile(c)
 		if err != nil {
 
 			ErrorHandler1("Failed to Create Data", "/shines/main/personal-information-page", c)
 			return
 		}
 
-		err = CreateShop(c)
+		err = repositories.CreateShop(c)
 		if err != nil {
 
 			ErrorHandler1("Failed to Create Data", "/shines/main/personal-information-page", c)
@@ -219,7 +220,7 @@ func ViewHomeHandler(c *gin.Context) {
 		)
 		return
 	}
-	userID := GetuserId(c)
+	userID := repositories.GetuserId(c)
 	products := []models.Product{}
 	err := models.DB.Model(&models.Product{}).
 		Select("*").
@@ -233,8 +234,8 @@ func ViewHomeHandler(c *gin.Context) {
 	context := gin.H{
 		"title":    "Home",
 		"products": products,
-		"isSeller": IsSeller(c),
-		"isAdmin":  IsAdmin(c),
+		"isSeller": repositories.IsSeller(c),
+		"isAdmin":  repositories.IsAdmin(c),
 	}
 	fmt.Println(products)
 	c.HTML(

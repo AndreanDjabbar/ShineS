@@ -1,4 +1,4 @@
-package controllers
+package repositories
 
 import (
 	"fmt"
@@ -329,7 +329,7 @@ func DeleteProduct(c *gin.Context, productId string) error {
 	return err
 }
 
-func isNumber(strings string) bool {
+func IsNumber(strings string) bool {
 	for a := 0; a < len(strings); a++ {
 		_, err := strconv.Atoi(string(strings[a]))
 		if err != nil {

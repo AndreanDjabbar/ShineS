@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
+	"shines/repositories"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func ViewCreateProductHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -29,7 +30,7 @@ func ViewCreateProductHandler(c *gin.Context) {
 
 	context := gin.H{
 		"title":    "Create Product",
-		"isSeller": IsSeller(c),
+		"isSeller": repositories.IsSeller(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -85,7 +86,7 @@ func CreateProductHandler(c *gin.Context) {
 	file, err := c.FormFile("photo")
 	if file == nil {
 		if productNameErr == "" && categoryErr == "" && priceErr == "" && quantityErr == "" {
-			sellerId := GetSellerId(c)
+			sellerId := repositories.GetSellerId(c)
 			product := models.Product{
 				ShopId:             uint(sellerId),
 				ProductName:        productName,
@@ -117,7 +118,7 @@ func CreateProductHandler(c *gin.Context) {
 		}
 
 		if productNameErr == "" && categoryErr == "" && priceErr == "" && quantityErr == "" && fileErr == "" {
-			sellerId := GetSellerId(c)
+			sellerId := repositories.GetSellerId(c)
 			product := models.Product{
 				ShopId:             uint(sellerId),
 				ProductName:        productName,
@@ -151,9 +152,9 @@ func CreateProductHandler(c *gin.Context) {
 		"description":    description,
 		"category":       category,
 		"price":          price,
-		"isSeller":       IsSeller(c),
+		"isSeller":       repositories.IsSeller(c),
 		"quantity":       quantity,
-		"isAdmin":        IsAdmin(c),
+		"isAdmin":        repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -163,7 +164,7 @@ func CreateProductHandler(c *gin.Context) {
 }
 
 func ViewUpdateProductHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -197,8 +198,8 @@ func ViewUpdateProductHandler(c *gin.Context) {
 		"productImage": product.ProductImage,
 		"quantity":     product.ProductStock,
 		"productId":    productId,
-		"isSeller":     IsSeller(c),
-		"isAdmin":      IsAdmin(c),
+		"isSeller":     repositories.IsSeller(c),
+		"isAdmin":      repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -322,8 +323,8 @@ func UpdateProductHandler(c *gin.Context) {
 		"category":       category,
 		"price":          price,
 		"quantity":       quantity,
-		"isSeller":       IsSeller(c),
-		"isAdmin":        IsAdmin(c),
+		"isSeller":       repositories.IsSeller(c),
+		"isAdmin":        repositories.IsAdmin(c),
 		"productImage":   product.ProductImage,
 	}
 	c.HTML(
@@ -334,7 +335,7 @@ func UpdateProductHandler(c *gin.Context) {
 }
 
 func ViewDeleteConfirmationHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -368,8 +369,8 @@ func ViewDeleteConfirmationHandler(c *gin.Context) {
 		"productStock":       product.ProductStock,
 		"productImage":       product.ProductImage,
 		"productDescription": product.ProductDescription,
-		"isSeller":           IsSeller(c),
-		"isAdmin":            IsAdmin(c),
+		"isSeller":           repositories.IsSeller(c),
+		"isAdmin":            repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -379,7 +380,7 @@ func ViewDeleteConfirmationHandler(c *gin.Context) {
 }
 
 func DeleteProductHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -404,7 +405,7 @@ func DeleteProductHandler(c *gin.Context) {
 		ErrorHandler1("Failed to Get Data", "/shines/main/seller-catalog-page", c)
 		return
 	}
-	err = DeleteProduct(c, productId)
+	err = repositories.DeleteProduct(c, productId)
 	if err != nil {
 
 		ErrorHandler1("Failed to Delete Data", "/shines/main/seller-catalog-page", c)
@@ -454,8 +455,8 @@ func ViewDetailProductHandler(c *gin.Context) {
 		"shopId":        shopId,
 		"shopName":      shop.ShopName,
 		"quantityOrder": stockSlice,
-		"isSeller":      IsSeller(c),
-		"isAdmin":       IsAdmin(c),
+		"isSeller":      repositories.IsSeller(c),
+		"isAdmin":       repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -478,7 +479,7 @@ func DetailProductHandler(c *gin.Context) {
 	strOrderQuantity := c.PostForm("quantity")
 	orderQuantity, _ := strconv.Atoi(strOrderQuantity)
 
-	sellerId := GetSellerIdByProductId(c, productId)
+	sellerId := repositories.GetSellerIdByProductId(c, productId)
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
 	if err != nil {
@@ -488,7 +489,7 @@ func DetailProductHandler(c *gin.Context) {
 	}
 
 	var urlSource string
-	err, urlSource = AddToCart(c, sellerId, productId, orderQuantity, int(product.ProductStock))
+	err, urlSource = repositories.AddToCart(c, sellerId, productId, orderQuantity, int(product.ProductStock))
 	if err != nil {
 
 		ErrorHandler1("Failed to Create Data", urlSource, c)
@@ -502,7 +503,7 @@ func DetailProductHandler(c *gin.Context) {
 }
 
 func ViewSellerCatalogHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -519,7 +520,7 @@ func ViewSellerCatalogHandler(c *gin.Context) {
 		return
 	}
 
-	err, shopId := GetShopId(c)
+	err, shopId := repositories.GetShopId(c)
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/shop-information-page", c)
@@ -536,8 +537,8 @@ func ViewSellerCatalogHandler(c *gin.Context) {
 	context := gin.H{
 		"title":    "Seller Catalog",
 		"products": products,
-		"isSeller": IsSeller(c),
-		"isAdmin":  IsAdmin(c),
+		"isSeller": repositories.IsSeller(c),
+		"isAdmin":  repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,

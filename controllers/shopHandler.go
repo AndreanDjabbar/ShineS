@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
+	"shines/repositories"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func ViewShopHandler(c *gin.Context) {
 		return
 	}
 	profile := models.Profile{}
-	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
+	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", repositories.GetuserId(c)).First(&profile).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/shop-information-page", c)
@@ -28,7 +29,7 @@ func ViewShopHandler(c *gin.Context) {
 	}
 
 	shop := models.Shop{}
-	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&shop).Error
+	err = models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", repositories.GetuserId(c)).First(&shop).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/shop-information-page", c)
@@ -41,10 +42,10 @@ func ViewShopHandler(c *gin.Context) {
 		"address":     shop.ShopAddress,
 		"description": shop.ShopDescription,
 		"shopImage":   shop.ShopImage,
-		"isAdmin":     IsAdmin(c),
+		"isAdmin":     repositories.IsAdmin(c),
 	}
 
-	isSeller := IsSeller(c)
+	isSeller := repositories.IsSeller(c)
 	if !isSeller {
 		context["isSeller"] = false
 		context["buttonCmnd"] = "Register"
@@ -63,7 +64,7 @@ func ViewShopHandler(c *gin.Context) {
 func ShopHandler(c *gin.Context) {
 	shop := models.Shop{}
 	profile := models.Profile{}
-	userId := GetuserId(c)
+	userId := repositories.GetuserId(c)
 
 	models.DB.Model(&models.Shop{}).Select("*").Where("User_id = ?", userId).First(&shop)
 	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile)
@@ -98,7 +99,7 @@ func ShopHandler(c *gin.Context) {
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
-			err = SetRole(c)
+			err = repositories.SetRole(c)
 			if err != nil {
 
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
@@ -121,10 +122,10 @@ func ShopHandler(c *gin.Context) {
 			"addressErr":     addressErr,
 			"shopNameErr":    shopNameErr,
 			"descriptionErr": descriptionErr,
-			"isAdmin":        IsAdmin(c),
+			"isAdmin":        repositories.IsAdmin(c),
 		}
 
-		isSeller := IsSeller(c)
+		isSeller := repositories.IsSeller(c)
 		if !isSeller {
 			context["isSeller"] = false
 			context["buttonCmnd"] = "Register"
@@ -160,7 +161,7 @@ func ShopHandler(c *gin.Context) {
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
-			err = SetRole(c)
+			err = repositories.SetRole(c)
 			if err != nil {
 
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
@@ -182,10 +183,10 @@ func ShopHandler(c *gin.Context) {
 			"descriptionErr": descriptionErr,
 			"addressErr":     addressErr,
 			"fileErr":        fileErr,
-			"isAdmin":        IsAdmin(c),
+			"isAdmin":        repositories.IsAdmin(c),
 		}
 
-		isSeller := IsSeller(c)
+		isSeller := repositories.IsSeller(c)
 		if !isSeller {
 			context["isSeller"] = false
 			context["buttonCmnd"] = "Register"
@@ -203,7 +204,7 @@ func ShopHandler(c *gin.Context) {
 }
 
 func ViewDetailShopHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -243,9 +244,9 @@ func ViewDetailShopHandler(c *gin.Context) {
 		"address":       shop.ShopAddress,
 		"description":   shop.ShopDescription,
 		"shopImage":     shop.ShopImage,
-		"isSeller":      IsSeller(c),
-		"isAdmin":       IsAdmin(c),
-		"isAdminTarget": IsAdminTarget(c, userId),
+		"isSeller":      repositories.IsSeller(c),
+		"isAdmin":       repositories.IsAdmin(c),
+		"isAdminTarget": repositories.IsAdminTarget(c, userId),
 		"userID":        userId,
 	}
 	c.HTML(
@@ -256,7 +257,7 @@ func ViewDetailShopHandler(c *gin.Context) {
 }
 
 func DetailShopHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -320,7 +321,7 @@ func DetailShopHandler(c *gin.Context) {
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
-			err = SetRoleTarget(c, userId)
+			err = repositories.SetRoleTarget(c, userId)
 			if err != nil {
 
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
@@ -342,9 +343,9 @@ func DetailShopHandler(c *gin.Context) {
 			"shopImage":     shop.ShopImage,
 			"addressErr":    addressErr,
 			"shopNameErr":   shopNameErr,
-			"isAdmin":       IsAdmin(c),
+			"isAdmin":       repositories.IsAdmin(c),
 			"userID":        userId,
-			"isAdminTarget": IsAdminTarget(c, userId),
+			"isAdminTarget": repositories.IsAdminTarget(c, userId),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -373,7 +374,7 @@ func DetailShopHandler(c *gin.Context) {
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
-			err = SetRoleTarget(c, userId)
+			err = repositories.SetRoleTarget(c, userId)
 			if err != nil {
 
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
@@ -394,9 +395,9 @@ func DetailShopHandler(c *gin.Context) {
 			"shopNameErr":   shopNameErr,
 			"addressErr":    addressErr,
 			"fileErr":       fileErr,
-			"isAdmin":       IsAdmin(c),
+			"isAdmin":       repositories.IsAdmin(c),
 			"userID":        userId,
-			"isAdminTarget": IsAdminTarget(c, userId),
+			"isAdminTarget": repositories.IsAdminTarget(c, userId),
 		}
 		c.HTML(
 			http.StatusOK,
