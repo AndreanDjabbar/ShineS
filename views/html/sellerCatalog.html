@@ -18,7 +18,7 @@
         <div class="nav-right">
             <ul class="nav-right1">
                 <li><a href="/shines/main/home-page">Home</a></li>
-                <li><a href="">Category</a></li>
+                <li><a href="/shines/main/history-page/">History</a></li>
                 {{ if .isSeller }}
                     <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
                 {{ end }}
@@ -50,7 +50,7 @@
                             <p>Stock: {{.ProductStock}} pcs</p>
                         </div>
                         <div class="product-detailbtn">
-                            <a href="/shines/main/detail-product-page/{{.ProductId}}">Details</a>
+                            <a href="/shines/main/update-product-page/{{.ProductId}}">Details</a>
                         </div>
                     </div>
                     <br><br>

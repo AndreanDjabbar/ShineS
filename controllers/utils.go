@@ -45,6 +45,19 @@ func GetSellerId(c *gin.Context) int {
 	return sellerId
 }
 
+func GetShopIdByProductId(c *gin.Context, productId int) int {
+	var shopId int
+	models.DB.Model(&models.Product{}).Select("shop_id").Where("product_id = ?", productId).First(&shopId)
+	return shopId
+}
+
+func GetSellerIdByProductId(c *gin.Context, productId int) int {
+	shopID := GetShopIdByProductId(c, productId)
+	var sellerId int
+	models.DB.Model(&models.Shop{}).Select("user_id").Where("user_id = ?", shopID).First(&sellerId)
+	return sellerId
+}
+
 func GetEmailUser(c *gin.Context) string {
 	user := middlewares.GetSession(c)
 	var email string
@@ -102,13 +115,14 @@ func CreateShop(c *gin.Context) {
 	}
 }
 
-func AddToCart(c *gin.Context, productID int, quantity int, stock int) {
-	userId := GetuserId(c)
+func AddToCart(c *gin.Context,sellerID int, productID int, quantity int, stock int) {
+	buyerId := GetuserId(c)
 	urlSource := fmt.Sprintf("/shines/main/detail-product-page/%d", productID)
 	cart := models.Cart{}
-	err := models.DB.Model(&models.Cart{}).Where("user_id = ? AND product_id = ?", userId, productID).First(&cart).Error
+	err := models.DB.Model(&models.Cart{}).Where("buyer_id = ? AND seller_id AND product_id = ?", buyerId, sellerID, productID).First(&cart).Error
 	if err != nil {
-		cart.UserID = uint(userId)
+		cart.BuyerID = uint(buyerId)
+		cart.SellerID = uint(sellerID)
 		cart.ProductID = uint(productID)
 		cart.Quantity = uint(quantity)
 		err = models.DB.Create(&cart).Error
@@ -132,17 +146,16 @@ func AddToCart(c *gin.Context, productID int, quantity int, stock int) {
 }
 
 func UpdateCart(c *gin.Context, cartID, quantity, stock int) {
-	userId := GetuserId(c)
+	buyerId := GetuserId(c)
 	urlSource := fmt.Sprintf("/shines/main/update-cart-page/%d", cartID)
 	cart := models.Cart{}
-	err := models.DB.Model(&models.Cart{}).Where("user_id = ? AND cart_id = ?", userId, cartID).First(&cart).Error
+	err := models.DB.Model(&models.Cart{}).Where("buyer_id = ? AND cart_id = ?", buyerId, cartID).First(&cart).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", urlSource, c)
 		return
 	}
 	newQuantity := uint(quantity)
-	fmt.Println(newQuantity)
 	if newQuantity >= uint(stock) {
 		cart.Quantity = uint(stock)
 	} else {
@@ -157,10 +170,10 @@ func UpdateCart(c *gin.Context, cartID, quantity, stock int) {
 }
 
 func DeleteCart(c *gin.Context, cartID int) {
-	userId := GetuserId(c)
+	buyerId := GetuserId(c)
 	urlSource := fmt.Sprintf("/shines/main/cart-page")
 	cart := models.Cart{}
-	err := models.DB.Model(&models.Cart{}).Where("user_id = ? AND cart_id = ?", userId, cartID).First(&cart).Error
+	err := models.DB.Model(&models.Cart{}).Where("buyer_id = ? AND cart_id = ?", buyerId, cartID).First(&cart).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", urlSource, c)
@@ -181,9 +194,11 @@ func GetNameProduct(c *gin.Context, productId int) string {
 }
 
 func AddToTransaction(c *gin.Context, price float64, productID int, quantityOrder int) {
-	userID := GetuserId(c)
+	buyerID := GetuserId(c)
+	sellerID := GetSellerIdByProductId(c, productID)
 	transaction := models.Transactions{}
-	transaction.UserID = uint(userID)
+	transaction.BuyerID = uint(buyerID)
+	transaction.SellerID = uint(sellerID)
 	transaction.ProductPrice = price
 	transaction.Quantity = uint(quantityOrder)
 	transaction.ProductName = GetNameProduct(c, productID)
@@ -192,7 +207,6 @@ func AddToTransaction(c *gin.Context, price float64, productID int, quantityOrde
 	transaction.ProductID = uint(productID)
 	err := models.DB.Create(&transaction).Error
 	if err != nil {
-
 		ErrorHandler1("Failed to Create Data", "/shines/main/cart-page", c)
 		return
 	}
@@ -211,9 +225,9 @@ func UpdateStockProduct(c *gin.Context, productId int, quantityOrder int) {
 }
 
 func ClearCart(c *gin.Context) {
-	userId := GetuserId(c)
+	buyerId := GetuserId(c)
 	cart := models.Cart{}
-	err := models.DB.Model(&models.Cart{}).Where("user_id = ?", userId).Delete(&cart).Error
+	err := models.DB.Model(&models.Cart{}).Where("buyer_id = ?", buyerId).Delete(&cart).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Delete Data", "/shines/main/cart-page", c)

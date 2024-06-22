@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="" id="nav-title">ShineS</a>
+        </div>
+        <div class="nav-right">
+            <ul class="nav-right1">
+                <li><a href="/shines/main/home-page">Home</a></li>
+                <li><a href="/shines/main/history-page/">History</a></li>
+                {{ if .isSeller }}
+                    <li><a href="/shines/main/seller-catalog-page/">Catalog</a></li>
+                {{ end }}
+                {{ if .isAdmin }}
+                <li><a href="/shines/main/administrator-page/">Administration</a></li>
+                {{ end }}
+            </ul>
+            <ul class="nav-right2">
+                <li><a href="/shines/main/cart-page/">Cart</a></li>
+                <li><a href="../personal-information-page/">Profile</a></li>
+                <li><a href="../logout-page">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="content">
+        {{if .isAdmin}}
+        <div class="content-first">
+            {{if .transactions}}
+            <h3>All Transactions</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Product Name</th>
+                        <th>Product Price</th>
+                        <th>Quantity</th>
+                        <th>Transaction Date</th>
+                        <th>Detail Button</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $index, $transaction := .transactions}}
+                    <tr>
+                        <th scope="row">{{$index | add1}}</th>
+                        <td>{{$transaction.ProductName}}</td>
+                        <td>{{$transaction.ProductPrice}}</td>
+                        <td>{{$transaction.Quantity}}</td>
+                        <td>{{$transaction.TransactionDate}}</td>
+                        <td><a href="../">Detail</a></td>
+                    </tr>
+                {{end}}
+                </tbody>
+            </table>
+            {{ else }}
+            <h3>No History...</h3>
+            {{end}}
+        </div>
+        {{else}}
+        <div class="content-first">
+            {{if .transactions}}
+            <h3>Your Transactions History</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Product Name</th>
+                        <th>Product Price</th>
+                        <th>Quantity</th>
+                        <th>Transaction Date</th>
+                        <th>Detail Button</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $index, $transaction := .transactions}}
+                    <tr>
+                        <th scope="row">{{$index | add1}}</th>
+                        <td>{{$transaction.ProductName}}</td>
+                        <td>{{$transaction.ProductPrice}}</td>
+                        <td>{{$transaction.Quantity}}</td>
+                        <td>{{$transaction.TransactionDate}}</td>
+                        <td><a href="../">Detail</a></td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            {{ else }}
+                <h3>No Transactions History...</h3>
+            {{end}}
+            {{if .isSeller}}
+                <br><br><br>
+                {{if .salesTransactions}}
+                <h3>Your Sales History</h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Product Name</th>
+                            <th>Product Price</th>
+                            <th>Quantity</th>
+                            <th>Transaction Date</th>
+                            <th>Detail Button</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range $index, $transaction := .salesTransactions}}
+                        <tr>
+                            <th scope="row">{{$index | add1}}</th>
+                            <td>{{$transaction.ProductName}}</td>
+                            <td>{{$transaction.ProductPrice}}</td>
+                            <td>{{$transaction.Quantity}}</td>
+                            <td>{{$transaction.TransactionDate}}</td>
+                            <td><a href="../">Detail</a></td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+                {{ else }}
+                    <h3>No Sales History...</h3>
+                {{end}}
+            {{end}}
+        </div>
+        {{end}}
+    </div>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

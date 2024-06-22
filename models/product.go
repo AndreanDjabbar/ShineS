@@ -14,8 +14,10 @@ type Product struct {
 
 type Cart struct {
 	CartId uint `gorm:"primaryKey"`
-    UserID    uint `gorm:"not null"`
-    User      User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
+    BuyerID    uint `gorm:"not null"`
+    Buyer      User   `gorm:"foreignKey:BuyerID;constraint:OnDelete:CASCADE;"`
+	SellerID	uint `gorm:"not null"`
+	Seller		User `gorm:"foreignKey:SellerID;constraint:OnDelete:CASCADE;"`
     ProductID    uint `gorm:"not null"`
     Product      Product   `gorm:"foreignKey:ProductID;constraint:OnDelete:CASCADE;"`
 	Quantity uint `gorm:"not null"`
@@ -23,8 +25,10 @@ type Cart struct {
 
 type Transactions struct {
 	TransactionID uint `gorm:"primaryKey"`
-	UserID uint `gorm:"not null"`
-	User User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
+	BuyerID uint `gorm:"not null"`
+	Buyer User `gorm:"foreignKey:BuyerID;constraint:OnDelete:CASCADE;"`
+	SellerID uint `gorm:"not null"`
+	Seller User `gorm:"foreignKey:SellerID;constraint:OnDelete:CASCADE;"`
 	ProductPrice float64 `gorm:"not null"`
 	TransactionDate string `gorm:"not null"`
 	ProductID uint `gorm:"not null"`

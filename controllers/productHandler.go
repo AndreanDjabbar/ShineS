@@ -424,7 +424,6 @@ func ViewDetailProductHandler(c *gin.Context) {
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
 	if err != nil {
-
 		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
 	}
@@ -432,7 +431,6 @@ func ViewDetailProductHandler(c *gin.Context) {
 	shop := models.Shop{}
 	err = models.DB.Model(&models.Shop{}).Select("*").Where("seller_id = ?", shopId).First(&shop).Error
 	if err != nil {
-
 		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
 		return
 	}
@@ -475,6 +473,7 @@ func DetailProductHandler(c *gin.Context) {
 	strOrderQuantity := c.PostForm("quantity")
 	orderQuantity, _ := strconv.Atoi(strOrderQuantity)
 
+	sellerId := GetSellerIdByProductId(c, productId)
 	product := models.Product{}
 	err := models.DB.Model(&models.Product{}).Select("*").Where("product_id = ?", productId).First(&product).Error
 	if err != nil {
@@ -483,7 +482,7 @@ func DetailProductHandler(c *gin.Context) {
 		return
 	}
 
-	AddToCart(c, productId, orderQuantity, int(product.ProductStock))
+	AddToCart(c, sellerId, productId, orderQuantity, int(product.ProductStock))
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/home-page",
