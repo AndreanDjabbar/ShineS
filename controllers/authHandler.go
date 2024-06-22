@@ -154,8 +154,20 @@ func LoginHandler(c *gin.Context) {
 
 	if usernameErr == "" && passwordErr == "" {
 		middlewares.SaveSession(c, username)
-		CreateProfile(c)
-		CreateShop(c)
+		err := CreateProfile(c)
+		if err != nil {
+
+			ErrorHandler1("Failed to Create Data", "/shines/main/personal-information-page", c)
+			return
+		}
+
+		err = CreateShop(c)
+		if err != nil {
+
+			ErrorHandler1("Failed to Create Data", "/shines/main/personal-information-page", c)
+			return
+		}
+
 		c.Redirect(
 			http.StatusFound,
 			"/shines/main/home-page",

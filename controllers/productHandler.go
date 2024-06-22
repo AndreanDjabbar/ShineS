@@ -404,7 +404,12 @@ func DeleteProductHandler(c *gin.Context) {
 		ErrorHandler1("Failed to Get Data", "/shines/main/seller-catalog-page", c)
 		return
 	}
-	DeleteProduct(c, productId)
+	err = DeleteProduct(c, productId)
+	if err != nil {
+
+		ErrorHandler1("Failed to Delete Data", "/shines/main/seller-catalog-page", c)
+		return
+	}
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/seller-catalog-page",
@@ -482,7 +487,14 @@ func DetailProductHandler(c *gin.Context) {
 		return
 	}
 
-	AddToCart(c, sellerId, productId, orderQuantity, int(product.ProductStock))
+	var urlSource string
+	err, urlSource = AddToCart(c, sellerId, productId, orderQuantity, int(product.ProductStock))
+	if err != nil {
+
+		ErrorHandler1("Failed to Create Data", urlSource, c)
+		return
+	}
+
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/home-page",
@@ -507,9 +519,14 @@ func ViewSellerCatalogHandler(c *gin.Context) {
 		return
 	}
 
-	shopId := GetShopId(c)
+	err, shopId := GetShopId(c)
+	if err != nil {
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/shop-information-page", c)
+		return
+	}
 	products := []models.Product{}
-	err := models.DB.Model(&models.Product{}).Select("*").Where("Shop_id = ?", shopId).Find(&products).Error
+	err = models.DB.Model(&models.Product{}).Select("*").Where("Shop_id = ?", shopId).Find(&products).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/seller-catalog-page", c)

@@ -98,7 +98,13 @@ func ShopHandler(c *gin.Context) {
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
-			SetRole(c)
+			err = SetRole(c)
+			if err != nil {
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
+				return
+			}
+
 			c.Redirect(
 				http.StatusFound,
 				"/shines/main/shop-information-page",
@@ -154,7 +160,12 @@ func ShopHandler(c *gin.Context) {
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
-			SetRole(c)
+			err = SetRole(c)
+			if err != nil {
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
+				return
+			}
 			c.Redirect(
 				http.StatusFound,
 				"/shines/main/shop-information-page",
@@ -309,7 +320,12 @@ func DetailShopHandler(c *gin.Context) {
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
-			SetRoleTarget(c, userId)
+			err = SetRoleTarget(c, userId)
+			if err != nil {
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
+				return
+			}
 			targetUrl := fmt.Sprintf("/shines/main/detail-shop-page/%d", userId)
 			c.Redirect(
 				http.StatusFound,
@@ -357,7 +373,11 @@ func DetailShopHandler(c *gin.Context) {
 				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
 				return
 			}
-			SetRoleTarget(c, userId)
+			err = SetRoleTarget(c, userId)
+			if err != nil {
+
+				ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
+			}
 			targetUrl := fmt.Sprintf("/shines/main/detail-shop-page/%d", userId)
 			c.Redirect(
 				http.StatusFound,

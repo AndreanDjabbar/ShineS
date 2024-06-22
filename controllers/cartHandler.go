@@ -152,7 +152,13 @@ func UpdateCartHandler(c *gin.Context) {
 		return
 	}
 	stock := int(product.ProductStock)
-	UpdateCart(c, cartId, orderQuantity, stock)
+	var urlSource string
+	err, urlSource = UpdateCart(c, cartId, orderQuantity, stock)
+	if err != nil {
+
+		ErrorHandler1("Failed to Get Data", urlSource, c)
+
+	}
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/cart-page",
@@ -170,7 +176,13 @@ func DeleteCartHandler(c *gin.Context) {
 	}
 	strCartId := c.Param("cartId")
 	cartId, _ := strconv.Atoi(strCartId)
-	DeleteCart(c, cartId)
+
+	var urlSource string
+	err, urlSource := DeleteCart(c, cartId)
+	if err != nil {
+
+		ErrorHandler1("Failed to Delete Data", urlSource, c)
+	}
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/cart-page",
@@ -207,10 +219,25 @@ func CheckoutHandler(c *gin.Context) {
 		return
 	}
 	for _, item := range details {
-		AddToTransaction(c, item.Price, int(item.ProductID), int(item.Quantity))
-		UpdateStockProduct(c, int(item.ProductID), int(item.Quantity))
+		err := AddToTransaction(c, item.Price, int(item.ProductID), int(item.Quantity))
+		if err != nil {
+			ErrorHandler1("Failed to Create Data", "/shines/main/cart-page", c)
+			return
+		}
+
+		err = UpdateStockProduct(c, int(item.ProductID), int(item.Quantity))
+		if err != nil {
+
+			ErrorHandler1("Failed to Update Data", "/shines/main/cart-page", c)
+			return
+		}
 	}
-	ClearCart(c)
+	err = ClearCart(c)
+	if err != nil {
+
+		ErrorHandler1("Failed to Delete Data", "/shines/main/cart-page", c)
+		return
+	}
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/home-page",

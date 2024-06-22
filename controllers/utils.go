@@ -96,50 +96,42 @@ func GetShopName(c *gin.Context, userID int) string {
 	return shop.ShopName
 }
 
-func CreateProfile(c *gin.Context) {
+func CreateProfile(c *gin.Context) error {
 	userId := GetuserId(c)
 
 	var count int64
 	models.DB.Model(&models.Profile{}).Where("user_id = ?", userId).Count(&count)
 
 	if count > 0 {
-		return
+		return nil
 	} else {
 		profile := models.Profile{
 			UserID: uint(userId),
 			Image:  "default.png",
 		}
 		err := models.DB.Create(&profile).Error
-		if err != nil {
-
-			ErrorHandler1("Failed to Create Data", "/shines/main/personal-information-page", c)
-			return
-		}
+		return err
 	}
 }
 
-func CreateShop(c *gin.Context) {
+func CreateShop(c *gin.Context) error {
 	userId := GetuserId(c)
 	var count int64
 	models.DB.Model(&models.Shop{}).Where("user_id = ?", userId).Count(&count)
 
 	if count > 0 {
-		return
+		return nil
 	} else {
 		shop := models.Shop{
 			UserID:    uint(userId),
 			ShopImage: "store.png",
 		}
 		err := models.DB.Create(&shop).Error
-		if err != nil {
-
-			ErrorHandler1("Failed to Create Data", "/shines/main/personal-information-page", c)
-			return
-		}
+		return err
 	}
 }
 
-func AddToCart(c *gin.Context,sellerID int, productID int, quantity int, stock int) {
+func AddToCart(c *gin.Context, sellerID int, productID int, quantity int, stock int) (error, string) {
 	buyerId := GetuserId(c)
 	urlSource := fmt.Sprintf("/shines/main/detail-product-page/%d", productID)
 	cart := models.Cart{}
@@ -151,9 +143,7 @@ func AddToCart(c *gin.Context,sellerID int, productID int, quantity int, stock i
 		cart.Quantity = uint(quantity)
 		err = models.DB.Create(&cart).Error
 		if err != nil {
-
-			ErrorHandler1("Failed to Create Data", urlSource, c)
-			return
+			return err, urlSource
 		}
 	} else {
 		newQuantity := cart.Quantity + uint(quantity)
@@ -162,22 +152,19 @@ func AddToCart(c *gin.Context,sellerID int, productID int, quantity int, stock i
 		}
 		err = models.DB.Save(&cart).Error
 		if err != nil {
-
-			ErrorHandler1("Failed to Update Data", urlSource, c)
-			return
+			return err, urlSource
 		}
 	}
+	return nil, urlSource
 }
 
-func UpdateCart(c *gin.Context, cartID, quantity, stock int) {
+func UpdateCart(c *gin.Context, cartID, quantity, stock int) (error, string) {
 	buyerId := GetuserId(c)
 	urlSource := fmt.Sprintf("/shines/main/update-cart-page/%d", cartID)
 	cart := models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Where("buyer_id = ? AND cart_id = ?", buyerId, cartID).First(&cart).Error
 	if err != nil {
-
-		ErrorHandler1("Failed to Get Data", urlSource, c)
-		return
+		return err, urlSource
 	}
 	newQuantity := uint(quantity)
 	if newQuantity >= uint(stock) {
@@ -187,28 +174,26 @@ func UpdateCart(c *gin.Context, cartID, quantity, stock int) {
 	}
 	err = models.DB.Save(&cart).Error
 	if err != nil {
-
-		ErrorHandler1("Failed to Update Data", urlSource, c)
-		return
+		return err, urlSource
 	}
+	return nil, urlSource
 }
 
-func DeleteCart(c *gin.Context, cartID int) {
+func DeleteCart(c *gin.Context, cartID int) (error, string) {
 	buyerId := GetuserId(c)
 	urlSource := fmt.Sprintf("/shines/main/cart-page")
 	cart := models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Where("buyer_id = ? AND cart_id = ?", buyerId, cartID).First(&cart).Error
 	if err != nil {
 
-		ErrorHandler1("Failed to Get Data", urlSource, c)
-		return
+		return err, urlSource
 	}
 	err = models.DB.Delete(&cart).Error
 	if err != nil {
 
-		ErrorHandler1("Failed to Delete Data", urlSource, c)
-		return
+		return err, urlSource
 	}
+	return err, urlSource
 }
 
 func GetNameProduct(c *gin.Context, productId int) string {
@@ -217,7 +202,7 @@ func GetNameProduct(c *gin.Context, productId int) string {
 	return product.ProductName
 }
 
-func AddToTransaction(c *gin.Context, price float64, productID int, quantityOrder int) {
+func AddToTransaction(c *gin.Context, price float64, productID int, quantityOrder int) error {
 	buyerID := GetuserId(c)
 	sellerID := GetSellerIdByProductId(c, productID)
 	transaction := models.Transactions{}
@@ -231,32 +216,31 @@ func AddToTransaction(c *gin.Context, price float64, productID int, quantityOrde
 	transaction.ProductID = uint(productID)
 	err := models.DB.Create(&transaction).Error
 	if err != nil {
-		ErrorHandler1("Failed to Create Data", "/shines/main/cart-page", c)
-		return
+		return err
 	}
+	return err
 }
 
-func UpdateStockProduct(c *gin.Context, productId int, quantityOrder int) {
+func UpdateStockProduct(c *gin.Context, productId int, quantityOrder int) error {
 	product := models.Product{}
 	models.DB.Model(&models.Product{}).Where("product_id = ?", productId).First(&product)
 	product.ProductStock = product.ProductStock - uint(quantityOrder)
 	err := models.DB.Save(&product).Error
 	if err != nil {
-
-		ErrorHandler1("Failed to Update Data", "/shines/main/cart-page", c)
-		return
+		return err
 	}
+	return err
 }
 
-func ClearCart(c *gin.Context) {
+func ClearCart(c *gin.Context) error {
 	buyerId := GetuserId(c)
 	cart := models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Where("buyer_id = ?", buyerId).Delete(&cart).Error
 	if err != nil {
 
-		ErrorHandler1("Failed to Delete Data", "/shines/main/cart-page", c)
-		return
+		return err
 	}
+	return err
 }
 
 func GetRoleTarget(c *gin.Context, userId int) string {
@@ -287,7 +271,7 @@ func GetRole(c *gin.Context) string {
 	return string(user.Role)
 }
 
-func SetRole(c *gin.Context) {
+func SetRole(c *gin.Context) error {
 	userId := GetuserId(c)
 	user := models.User{}
 	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
@@ -297,16 +281,15 @@ func SetRole(c *gin.Context) {
 		err := models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&user).Error
 		if err != nil {
 
-			ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
-			return
+			return err
 		}
-		return
+		return err
 	} else {
-		return
+		return nil
 	}
 }
 
-func SetRoleTarget(c *gin.Context, userId int) {
+func SetRoleTarget(c *gin.Context, userId int) error {
 	user := models.User{}
 	models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", userId).First(&user)
 	currentRole := GetRole(c)
@@ -315,37 +298,35 @@ func SetRoleTarget(c *gin.Context, userId int) {
 		err := models.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(&user).Error
 		if err != nil {
 
-			ErrorHandler1("Failed to Update Data", "/shines/main/shop-information-page", c)
-			return
+			return err
 		}
-		return
+		return err
 	} else {
-		return
+		return nil
 	}
 }
 
-func GetShopId(c *gin.Context) int {
+func GetShopId(c *gin.Context) (error, int) {
 	userId := GetuserId(c)
 	var shopId int
 	err := models.DB.Model(&models.Shop{}).Select("seller_id").Where("user_id = ?", userId).First(&shopId).Error
 	if err != nil {
 
-		ErrorHandler1("Failed to Get Data", "/shines/main/shop-information-page", c)
-		return 0
+		return err, 0
 	}
-	return shopId
+	return err, shopId
 }
 
-func DeleteProduct(c *gin.Context, productId string) {
+func DeleteProduct(c *gin.Context, productId string) error {
 	var product models.Product
 	models.DB.Where("product_id = ?", productId).First(&product)
 	err := models.DB.Delete(&product).Error
 	if err != nil {
 
-		ErrorHandler1("Failed to Delete Data", "/shines/main/seller-catalog-page", c)
-		return
+		return err
 	}
 	c.Redirect(http.StatusFound, "/shines/main/seller-catalog-page")
+	return err
 }
 
 func isNumber(strings string) bool {
