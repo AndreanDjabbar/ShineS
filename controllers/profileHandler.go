@@ -691,3 +691,50 @@ func ViewHistoryHandler(c *gin.Context) {
 		context,
 	)
 }
+
+func ViewDetailHistoryHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	strTransactionId := c.Param("transId")
+	transactionId, _ := strconv.Atoi(strTransactionId)
+	transaction := models.Transactions{}
+	err := models.DB.Model(&models.Transactions{}).Select("*").Where("Transaction_id = ?", transactionId).First(&transaction).Error
+	if err != nil {
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/history-page", c)
+		return
+	}
+	seller := GetUserName(c, int(transaction.SellerID))
+	buyer := GetUserName(c, int(transaction.BuyerID))
+	shopName := GetShopName(c, int(transaction.SellerID))
+	productCategory := GetCategoryProduct(c, int(transaction.ProductID))
+	productImage := GetImageProduct(c, int(transaction.ProductID))
+
+	context := gin.H{
+		"title":        "Detail History",
+		"transaction":  transaction,
+		"transactionId": transactionId,
+		"productName": transaction.ProductName,
+		"transactionDate": transaction.TransactionDate,
+		"price": transaction.ProductPrice,
+		"orderQuantity": transaction.Quantity,
+		"isSeller":     IsSeller(c),
+		"seller":	   seller,
+		"productImage": productImage,
+		"buyer":	   buyer,
+		"category":	   productCategory,
+		"shopName":	   shopName,
+		"isAdmin":      IsAdmin(c),
+	}
+	c.HTML(
+		http.StatusOK,
+		"detailHistory.html",
+		context,
+	)
+}
