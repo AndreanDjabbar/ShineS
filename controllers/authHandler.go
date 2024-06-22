@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -20,16 +20,6 @@ func ViewRegisterHandler(c *gin.Context) {
 		"register.html",
 		context,
 	)
-}
-
-func isNumber(strings string) bool {
-	for a := 0; a < len(strings); a++ {
-		_, err := strconv.Atoi(string(strings[a]))
-		if err != nil {
-			return false
-		}
-	}
-	return true
 }
 
 func RegisterHandler(c *gin.Context) {
@@ -192,3 +182,53 @@ func LogoutHandler(c *gin.Context) {
 		"/shines/main/login-page",
 	)
 }
+
+func RootHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"/shines/main/home-page",
+		)
+	} else {
+		c.Redirect(
+			http.StatusFound,
+			"/shines/main/login-page",
+		)
+	}
+}
+
+func ViewHomeHandler(c *gin.Context) {
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	userID := GetuserId(c)
+	products := []models.Product{}
+	err := models.DB.Model(&models.Product{}).
+		Select("*").
+		Where("Shop_id != ? AND product_stock != ?", userID, 0).
+		Find(&products).Error
+	if err != nil {
+
+		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
+		return
+	}
+	context := gin.H{
+		"title":    "Home",
+		"products": products,
+		"isSeller": IsSeller(c),
+		"isAdmin":  IsAdmin(c),
+	}
+	fmt.Println(products)
+	c.HTML(
+		http.StatusOK,
+		"home.html",
+		context,
+	)
+}
+
