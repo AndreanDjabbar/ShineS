@@ -12,8 +12,8 @@ import (
 )
 
 func ViewRegisterHandler(c *gin.Context) {
-	context := gin.H {
-		"title":"Sign Up",
+	context := gin.H{
+		"title": "Sign Up",
 	}
 	c.HTML(
 		http.StatusOK,
@@ -39,7 +39,7 @@ func RegisterHandler(c *gin.Context) {
 
 	if !strings.Contains(email, "@") {
 		emailErr = "Email must included @"
-	}	
+	}
 
 	if len(email) < 10 {
 		emailErr = "Email must be at least 10 Characters and included @"
@@ -71,12 +71,12 @@ func RegisterHandler(c *gin.Context) {
 			Email:    email,
 			Phone:    phone,
 			Password: string(hashedPassword),
-			Role: "Customer",
-		}		
+			Role:     "Customer",
+		}
 		err = models.DB.Create(&user).Error
 		if err != nil {
 
-			ErrorHandler2("Error Create", "Failed to Create Data", "Failed to Create Data", c)
+			ErrorHandler2("Error Create", "Failed to Create Data", "/shines/main/register-page", c)
 			return
 		}
 		c.Redirect(
@@ -84,13 +84,13 @@ func RegisterHandler(c *gin.Context) {
 			"/shines/main/login-page",
 		)
 		return
-}
+	}
 
 	context := gin.H{
-		"title":"Sign Up",
-		"email":email,
-		"phone":phone,
-		"username":username,
+		"title":       "Sign Up",
+		"email":       email,
+		"phone":       phone,
+		"username":    username,
 		"usernameErr": usernameErr,
 		"emailErr":    emailErr,
 		"phoneErr":    phoneErr,
@@ -113,8 +113,8 @@ func ViewLoginHandler(c *gin.Context) {
 		)
 		return
 	}
-	context := gin.H {
-		"title":"Login",
+	context := gin.H{
+		"title": "Login",
 	}
 	c.HTML(
 		http.StatusOK,
@@ -161,12 +161,12 @@ func LoginHandler(c *gin.Context) {
 			"/shines/main/home-page",
 		)
 		return
-	} 
-	context := gin.H {
-		"title":"Login",
-		"username":username,
-		"usernameErr":usernameErr,
-		"passwordErr":passwordErr,
+	}
+	context := gin.H{
+		"title":       "Login",
+		"username":    username,
+		"usernameErr": usernameErr,
+		"passwordErr": passwordErr,
 	}
 	c.HTML(
 		http.StatusOK,
@@ -231,4 +231,3 @@ func ViewHomeHandler(c *gin.Context) {
 		context,
 	)
 }
-
