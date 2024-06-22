@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
+	"shines/repositories"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ import (
 )
 
 func PersonalHandler(c *gin.Context) {
-	userId := GetuserId(c)
+	userId := repositories.GetuserId(c)
 	profile := models.Profile{}
 	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", userId).First(&profile)
 	var firstName, lastName, address string
@@ -107,8 +108,8 @@ func PersonalHandler(c *gin.Context) {
 			"lastNameErr":  lastNameErr,
 			"addressErr":   addressErr,
 			"fileErr":      fileErr,
-			"isSeller":     IsSeller(c),
-			"isAdmin":      IsAdmin(c),
+			"isSeller":     repositories.IsSeller(c),
+			"isAdmin":      repositories.IsAdmin(c),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -128,7 +129,7 @@ func ViewPersonalHandler(c *gin.Context) {
 		return
 	}
 	profile := models.Profile{}
-	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile)
+	models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", repositories.GetuserId(c)).First(&profile)
 
 	context := gin.H{
 		"title":     "Personal Information",
@@ -136,8 +137,8 @@ func ViewPersonalHandler(c *gin.Context) {
 		"firstName": profile.FirstName,
 		"lastName":  profile.LastName,
 		"address":   profile.Address,
-		"isSeller":  IsSeller(c),
-		"isAdmin":   IsAdmin(c),
+		"isSeller":  repositories.IsSeller(c),
+		"isAdmin":   repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -155,9 +156,9 @@ func ViewCredentialHandler(c *gin.Context) {
 		)
 		return
 	}
-	email := GetEmailUser(c)
+	email := repositories.GetEmailUser(c)
 	profile := models.Profile{}
-	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
+	err := models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", repositories.GetuserId(c)).First(&profile).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/credential-information-page", c)
@@ -172,8 +173,8 @@ func ViewCredentialHandler(c *gin.Context) {
 		"lastName":  profile.LastName,
 		"address":   profile.Address,
 		"email":     email,
-		"isSeller":  IsSeller(c),
-		"isAdmin":   IsAdmin(c),
+		"isSeller":  repositories.IsSeller(c),
+		"isAdmin":   repositories.IsAdmin(c),
 	}
 
 	c.HTML(
@@ -193,14 +194,14 @@ func CredentialHandler(c *gin.Context) {
 		return
 	}
 	user := models.User{}
-	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&user).Error
+	err := models.DB.Model(&models.User{}).Select("*").Where("User_id = ?", repositories.GetuserId(c)).First(&user).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/credential-information-page", c)
 		return
 	}
 	profile := models.Profile{}
-	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", GetuserId(c)).First(&profile).Error
+	err = models.DB.Model(&models.Profile{}).Select("*").Where("User_id = ?", repositories.GetuserId(c)).First(&profile).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/credential-information-page", c)
@@ -209,7 +210,7 @@ func CredentialHandler(c *gin.Context) {
 	var username, email, password1, password2 string
 	var usernameErr, emailErr, password1Err, password2Err string
 
-	userId := GetuserId(c)
+	userId := repositories.GetuserId(c)
 
 	username = c.PostForm("username")
 	email = c.PostForm("email")
@@ -284,8 +285,8 @@ func CredentialHandler(c *gin.Context) {
 		"emailErr":     emailErr,
 		"password1Err": password1Err,
 		"password2Err": password2Err,
-		"isSeller":     IsSeller(c),
-		"isAdmin":      IsAdmin(c),
+		"isSeller":     repositories.IsSeller(c),
+		"isAdmin":      repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -295,7 +296,7 @@ func CredentialHandler(c *gin.Context) {
 }
 
 func ViewDetailPersonalHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -327,9 +328,9 @@ func ViewDetailPersonalHandler(c *gin.Context) {
 		"address":       profile.Address,
 		"image":         profile.Image,
 		"userID":        userId,
-		"isSeller":      IsSeller(c),
-		"isAdmin":       IsAdmin(c),
-		"isAdminTarget": IsAdminTarget(c, int(userId)),
+		"isSeller":      repositories.IsSeller(c),
+		"isAdmin":       repositories.IsAdmin(c),
+		"isAdminTarget": repositories.IsAdminTarget(c, int(userId)),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -339,7 +340,7 @@ func ViewDetailPersonalHandler(c *gin.Context) {
 }
 
 func DetailPersonalHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -452,9 +453,9 @@ func DetailPersonalHandler(c *gin.Context) {
 			"lastNameErr":   lastNameErr,
 			"addressErr":    addressErr,
 			"fileErr":       fileErr,
-			"isSeller":      IsSeller(c),
-			"isAdmin":       IsAdmin(c),
-			"isAdminTarget": IsAdminTarget(c, int(UserId)),
+			"isSeller":      repositories.IsSeller(c),
+			"isAdmin":       repositories.IsAdmin(c),
+			"isAdminTarget": repositories.IsAdminTarget(c, int(UserId)),
 		}
 		c.HTML(
 			http.StatusOK,
@@ -465,7 +466,7 @@ func DetailPersonalHandler(c *gin.Context) {
 }
 
 func ViewDetailCredentialHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -505,11 +506,11 @@ func ViewDetailCredentialHandler(c *gin.Context) {
 		"firstName":     profile.FirstName,
 		"lastName":      profile.LastName,
 		"address":       profile.Address,
-		"isSeller":      IsSeller(c),
+		"isSeller":      repositories.IsSeller(c),
 		"role":          user.Role,
 		"userID":        userId,
-		"isAdmin":       IsAdmin(c),
-		"isAdminTarget": IsAdminTarget(c, userId),
+		"isAdmin":       repositories.IsAdmin(c),
+		"isAdminTarget": repositories.IsAdminTarget(c, userId),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -519,7 +520,7 @@ func ViewDetailCredentialHandler(c *gin.Context) {
 }
 
 func DetailCredentialHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -631,9 +632,9 @@ func DetailCredentialHandler(c *gin.Context) {
 		"emailErr":      emailErr,
 		"password1Err":  password1Err,
 		"password2Err":  password2Err,
-		"isSeller":      IsSeller(c),
-		"isAdmin":       IsAdmin(c),
-		"isAdminTarget": IsAdminTarget(c, userId),
+		"isSeller":      repositories.IsSeller(c),
+		"isAdmin":       repositories.IsAdmin(c),
+		"isAdminTarget": repositories.IsAdminTarget(c, userId),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -653,8 +654,8 @@ func ViewHistoryHandler(c *gin.Context) {
 		)
 		return
 	}
-	userId := GetuserId(c)
-	role := GetRole(c)
+	userId := repositories.GetuserId(c)
+	role := repositories.GetRole(c)
 	if role == "Admin" {
 		transactions = []models.Transactions{}
 		err := models.DB.Model(&models.Transactions{}).Select("*").Find(&transactions).Error
@@ -680,8 +681,8 @@ func ViewHistoryHandler(c *gin.Context) {
 		"title":  "History",
 		"userId": userId,
 		"role":   role,
-		"isSeller": IsSeller(c),
-		"isAdmin":  IsAdmin(c),
+		"isSeller": repositories.IsSeller(c),
+		"isAdmin":  repositories.IsAdmin(c),
 		"transactions": transactions,
 		"salesTransactions": salesTransactions,
 	}
@@ -710,11 +711,11 @@ func ViewDetailHistoryHandler(c *gin.Context) {
 		ErrorHandler1("Failed to Get Data", "/shines/main/history-page", c)
 		return
 	}
-	seller := GetUserName(c, int(transaction.SellerID))
-	buyer := GetUserName(c, int(transaction.BuyerID))
-	shopName := GetShopName(c, int(transaction.SellerID))
-	productCategory := GetCategoryProduct(c, int(transaction.ProductID))
-	productImage := GetImageProduct(c, int(transaction.ProductID))
+	seller := repositories.GetUserName(c, int(transaction.SellerID))
+	buyer := repositories.GetUserName(c, int(transaction.BuyerID))
+	shopName := repositories.GetShopName(c, int(transaction.SellerID))
+	productCategory := repositories.GetCategoryProduct(c, int(transaction.ProductID))
+	productImage := repositories.GetImageProduct(c, int(transaction.ProductID))
 
 	context := gin.H{
 		"title":        "Detail History",
@@ -724,13 +725,13 @@ func ViewDetailHistoryHandler(c *gin.Context) {
 		"transactionDate": transaction.TransactionDate,
 		"price": transaction.ProductPrice,
 		"orderQuantity": transaction.Quantity,
-		"isSeller":     IsSeller(c),
+		"isSeller":     repositories.IsSeller(c),
 		"seller":	   seller,
 		"productImage": productImage,
 		"buyer":	   buyer,
 		"category":	   productCategory,
 		"shopName":	   shopName,
-		"isAdmin":      IsAdmin(c),
+		"isAdmin":      repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
