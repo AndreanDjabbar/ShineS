@@ -497,7 +497,6 @@ func ViewDetailCredentialHandler(c *gin.Context) {
 		ErrorHandler1("Failed to Get Data", "/shines/main/administrator-page", c)
 		return
 	}
-	fmt.Println(IsAdminTarget(c, userId))
 	context := gin.H{
 		"title":         "Detail Credential Information",
 		"username":      user.Username,
@@ -639,6 +638,56 @@ func DetailCredentialHandler(c *gin.Context) {
 	c.HTML(
 		http.StatusOK,
 		"detailCredential.html",
+		context,
+	)
+}
+
+func ViewHistoryHandler(c *gin.Context) {
+	transactions := []models.Transactions{}
+	salesTransactions := []models.Transactions{}
+	isLogged := middlewares.CheckSession(c)
+	if !isLogged {
+		c.Redirect(
+			http.StatusFound,
+			"shines/main/login-page",
+		)
+		return
+	}
+	userId := GetuserId(c)
+	role := GetRole(c)
+	if role == "Admin" {
+		transactions = []models.Transactions{}
+		err := models.DB.Model(&models.Transactions{}).Select("*").Find(&transactions).Error
+		if err != nil {
+			ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
+			return
+		}
+	} else {
+		transactions = []models.Transactions{}
+		err := models.DB.Model(&models.Transactions{}).Select("*").Where("Buyer_id = ?", userId).Find(&transactions).Error
+		if err != nil {
+			ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
+			return
+		}
+		salesTransactions = []models.Transactions{}
+		err = models.DB.Model(&models.Transactions{}).Select("*").Where("Seller_id = ?", userId).Find(&salesTransactions).Error
+		if err != nil {
+			ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
+			return
+		}
+	}
+	context := gin.H{
+		"title":  "History",
+		"userId": userId,
+		"role":   role,
+		"isSeller": IsSeller(c),
+		"isAdmin":  IsAdmin(c),
+		"transactions": transactions,
+		"salesTransactions": salesTransactions,
+	}
+	c.HTML(
+		http.StatusOK,
+		"history.html",
 		context,
 	)
 }

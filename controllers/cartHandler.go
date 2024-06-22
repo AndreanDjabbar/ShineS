@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"math/big"
 	"net/http"
 	"shines/middlewares"
@@ -13,7 +12,7 @@ import (
 
 func ViewCartHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
-	userId := GetuserId(c)
+	buyerId := GetuserId(c)
 	if !isLogged {
 		c.Redirect(
 			http.StatusFound,
@@ -22,7 +21,7 @@ func ViewCartHandler(c *gin.Context) {
 		return
 	}
 	cart := []models.Cart{}
-	err := models.DB.Model(&models.Cart{}).Select("*").Where("user_id = ?", userId).Find(&cart).Error
+	err := models.DB.Model(&models.Cart{}).Select("*").Where("buyer_id = ?", buyerId).Find(&cart).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/home-page", c)
@@ -38,10 +37,10 @@ func ViewCartHandler(c *gin.Context) {
 	}
 	transactions := []models.TransactionDetail{}
 	err = models.DB.Table("carts").
-		Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity").
-		Joins("left join users on carts.user_id = users.user_id").
+		Select("carts.cart_id, carts.buyer_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity").
+		Joins("left join users on carts.buyer_id = users.user_id").
 		Joins("left join products on carts.product_id = products.product_id").
-		Where("carts.user_id = ?", userId).
+		Where("carts.buyer_id = ?", buyerId).
 		Find(&transactions).Error
 	if err != nil {
 
@@ -152,7 +151,6 @@ func UpdateCartHandler(c *gin.Context) {
 		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
 		return
 	}
-	fmt.Println(orderQuantity)
 	stock := int(product.ProductStock)
 	UpdateCart(c, cartId, orderQuantity, stock)
 	c.Redirect(
@@ -188,9 +186,9 @@ func CheckoutHandler(c *gin.Context) {
 		)
 		return
 	}
-	userId := GetuserId(c)
+	buyerId := GetuserId(c)
 	cart := []models.Cart{}
-	err := models.DB.Model(&models.Cart{}).Select("*").Where("user_id = ?", userId).Find(&cart).Error
+	err := models.DB.Model(&models.Cart{}).Select("*").Where("buyer_id = ?", buyerId).Find(&cart).Error
 	if err != nil {
 
 		ErrorHandler1("Failed to Get Data", "/shines/main/cart-page", c)
@@ -198,10 +196,10 @@ func CheckoutHandler(c *gin.Context) {
 	}
 	details := []models.TransactionDetail{}
 	err = models.DB.Table("carts").
-		Select("carts.cart_id, carts.user_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity as quantity").
-		Joins("left join users on carts.user_id = users.user_id").
+		Select("carts.cart_id, carts.buyer_id, users.username, users.email, carts.product_id, products.product_name as product_name, products.product_price as price, carts.quantity as quantity").
+		Joins("left join users on carts.buyer_id = users.user_id").
 		Joins("left join products on carts.product_id = products.product_id").
-		Where("carts.user_id = ?", userId).
+		Where("carts.buyer_id = ?", buyerId).
 		Find(&details).Error
 	if err != nil {
 
