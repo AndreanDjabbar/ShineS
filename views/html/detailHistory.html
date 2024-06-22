@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.title}}</title>
-    <link rel="stylesheet" href="/css/detailProduct.css">
+    <link rel="stylesheet" href="/css/detailHistory.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -35,7 +35,7 @@
     </nav>
     <div class="content">
         <div class="content-first">
-            <a href="" id="content-first-title">Detail Product</a>
+            <a href="" id="content-first-title">Detail History</a>
             <form method="post" enctype="multipart/form-data">
                 <div class="main-info">
                     <div class="main-info-1">
@@ -45,10 +45,10 @@
                                 {{.productName}}
                             </div>
                         </div>
-                        <div class="form-description">
-                            <label for="description">Description</label>
-                            <div class="description">
-                                {{.description}}
+                        <div class="form-date">
+                            <label for="date">Transaction Date</label>
+                            <div class="date">
+                                {{.transactionDate}}
                             </div>
                         </div>
                     </div>
@@ -68,9 +68,23 @@
                         </div>
                     </div>
                     <div class="form-stock">
-                        <label for="stock">Stock</label>
+                        <label for="stock">Order Quantity</label>
                         <div class="stock">
-                            {{.stock}}
+                            {{.orderQuantity}}
+                        </div>    
+                    </div>
+                </div>
+                <div class="form-info">
+                    <div class="form-buyer">
+                        <label for="buyer">Buyer</label>
+                        <div class="buyer">
+                            {{.buyer}}
+                        </div>
+                    </div>
+                    <div class="form-seller">
+                        <label for="seller">Seller</label>
+                        <div class="seller">
+                            {{.seller}}
                         </div>    
                     </div>
                 </div>
@@ -80,17 +94,8 @@
                         {{.shopName}}
                     </div>    
                 </div>
-                <div class="form-quantity">
-                    <label for="quantity">Order Quantity</label>
-                    <select name="quantity" id="quantity">
-                        {{range .quantityOrder}}
-                            <option value="{{.}}">{{.}}</option>
-                        {{end}}
-                    </select>    
-                </div>
                 <div class="command-button">
-                    <a href="/shines/main/home-page">Back</a>
-                    <button type="submit">Add to Cart</button>
+                    <a href="/shines/main/history-page">Back</a>
                 </div>
                 </form>
             </div>

@@ -46,5 +46,6 @@ func MainRouter(c *gin.RouterGroup) {
 		main.GET("delete-cart-page/:cartId", controllers.DeleteCartHandler)
 		main.GET("checkout-page/", controllers.CheckoutHandler)
 		main.GET("history-page/", controllers.ViewHistoryHandler)
+		main.GET("detail-history-page/:transId", controllers.ViewDetailHistoryHandler)
 	}
 }

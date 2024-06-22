@@ -72,6 +72,30 @@ func GetPasswordUser(c *gin.Context) string {
 	return password
 }
 
+func GetUserName(c *gin.Context, userID int) string {
+	user := models.User{}
+	models.DB.Model(&models.User{}).Select("username").Where("user_id = ?", userID).First(&user)
+	return user.Username
+}
+
+func GetCategoryProduct(c *gin.Context, productId int) string {
+	product := models.Product{}
+	models.DB.Model(&models.Product{}).Select("product_category").Where("product_id = ?", productId).First(&product)
+	return product.ProductCategory
+}
+
+func GetImageProduct(c *gin.Context, productId int) string {
+	product := models.Product{}
+	models.DB.Model(&models.Product{}).Select("product_image").Where("product_id = ?", productId).First(&product)
+	return product.ProductImage
+}
+
+func GetShopName(c *gin.Context, userID int) string {
+	shop := models.Shop{}
+	models.DB.Model(&models.Shop{}).Select("shop_name").Where("user_id = ?", userID).First(&shop)
+	return shop.ShopName
+}
+
 func CreateProfile(c *gin.Context) {
 	userId := GetuserId(c)
 
