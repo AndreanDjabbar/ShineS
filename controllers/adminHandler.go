@@ -4,12 +4,13 @@ import (
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
+	"shines/repositories"
 
 	"github.com/gin-gonic/gin"
 )
 
 func ViewAdminHandler(c *gin.Context) {
-	role := GetRole(c)
+	role := repositories.GetRole(c)
 	isLogged := middlewares.CheckSession(c)
 	if !isLogged {
 		c.Redirect(
@@ -35,8 +36,8 @@ func ViewAdminHandler(c *gin.Context) {
 	context := gin.H{
 		"title":    "Administrator",
 		"users":    users,
-		"isSeller": IsSeller(c),
-		"isAdmin":  IsAdmin(c),
+		"isSeller": repositories.IsSeller(c),
+		"isAdmin":  repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,

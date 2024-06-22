@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"shines/middlewares"
 	"shines/models"
+	"shines/repositories"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ import (
 
 func ViewCartHandler(c *gin.Context) {
 	isLogged := middlewares.CheckSession(c)
-	buyerId := GetuserId(c)
+	buyerId := repositories.GetuserId(c)
 	if !isLogged {
 		c.Redirect(
 			http.StatusFound,
@@ -30,7 +31,7 @@ func ViewCartHandler(c *gin.Context) {
 	}
 	totalPrice := new(big.Float).SetFloat64(0.0)
 	for _, item := range cart {
-		priceProduct := new(big.Float).SetFloat64(GetPriceProduct(c, int(item.ProductID)))
+		priceProduct := new(big.Float).SetFloat64(repositories.GetPriceProduct(c, int(item.ProductID)))
 		quantity := big.NewFloat(float64(item.Quantity))
 		totalPrice.Add(totalPrice, new(big.Float).Mul(priceProduct, quantity))
 
@@ -51,9 +52,9 @@ func ViewCartHandler(c *gin.Context) {
 	context := gin.H{
 		"title":        "Cart",
 		"totalPrice":   totalPrice,
-		"isSeller":     IsSeller(c),
+		"isSeller":     repositories.IsSeller(c),
 		"Transactions": transactions,
-		"isAdmin":      IsAdmin(c),
+		"isAdmin":      repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -113,8 +114,8 @@ func ViewUpdateCartHandler(c *gin.Context) {
 		"stock":         product.ProductStock,
 		"cartId":        cartId,
 		"quantityOrder": stockSlice,
-		"isSeller":      IsSeller(c),
-		"isAdmin":       IsAdmin(c),
+		"isSeller":      repositories.IsSeller(c),
+		"isAdmin":       repositories.IsAdmin(c),
 	}
 	c.HTML(
 		http.StatusOK,
@@ -152,7 +153,13 @@ func UpdateCartHandler(c *gin.Context) {
 		return
 	}
 	stock := int(product.ProductStock)
-	UpdateCart(c, cartId, orderQuantity, stock)
+	var urlSource string
+	err, urlSource = repositories.UpdateCart(c, cartId, orderQuantity, stock)
+	if err != nil {
+
+		ErrorHandler1("Failed to Get Data", urlSource, c)
+
+	}
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/cart-page",
@@ -170,7 +177,13 @@ func DeleteCartHandler(c *gin.Context) {
 	}
 	strCartId := c.Param("cartId")
 	cartId, _ := strconv.Atoi(strCartId)
-	DeleteCart(c, cartId)
+
+	var urlSource string
+	err, urlSource := repositories.DeleteCart(c, cartId)
+	if err != nil {
+
+		ErrorHandler1("Failed to Delete Data", urlSource, c)
+	}
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/cart-page",
@@ -186,7 +199,7 @@ func CheckoutHandler(c *gin.Context) {
 		)
 		return
 	}
-	buyerId := GetuserId(c)
+	buyerId := repositories.GetuserId(c)
 	cart := []models.Cart{}
 	err := models.DB.Model(&models.Cart{}).Select("*").Where("buyer_id = ?", buyerId).Find(&cart).Error
 	if err != nil {
@@ -207,10 +220,25 @@ func CheckoutHandler(c *gin.Context) {
 		return
 	}
 	for _, item := range details {
-		AddToTransaction(c, item.Price, int(item.ProductID), int(item.Quantity))
-		UpdateStockProduct(c, int(item.ProductID), int(item.Quantity))
+		err := repositories.AddToTransaction(c, item.Price, int(item.ProductID), int(item.Quantity))
+		if err != nil {
+			ErrorHandler1("Failed to Create Data", "/shines/main/cart-page", c)
+			return
+		}
+
+		err = repositories.UpdateStockProduct(c, int(item.ProductID), int(item.Quantity))
+		if err != nil {
+
+			ErrorHandler1("Failed to Update Data", "/shines/main/cart-page", c)
+			return
+		}
 	}
-	ClearCart(c)
+	err = repositories.ClearCart(c)
+	if err != nil {
+
+		ErrorHandler1("Failed to Delete Data", "/shines/main/cart-page", c)
+		return
+	}
 	c.Redirect(
 		http.StatusFound,
 		"/shines/main/home-page",
